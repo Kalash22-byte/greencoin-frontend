@@ -1,0 +1,79 @@
+<script>
+  const BASE_URL = "https://greencoin-backend.onrender.com";
+
+  // 🔐 Session Protection
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+
+  // 🚀 Load History Data
+  async function loadHistory() {
+    try {
+      const res = await fetch(`${BASE_URL}/api/tree/history`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('Session expired');
+        throw new Error('Failed to load history');
+      }
+
+      const data = await res.json();
+      document.getElementById('loadingSpinner').style.display = 'none';
+
+      if (!data.history || data.history.length === 0) {
+        document.getElementById('emptyHistory').style.display = 'block';
+        return;
+      }
+
+      const list = document.getElementById("historyList");
+      data.history.forEach(entry => {
+        const card = document.createElement("div");
+        card.className = "photo-card";
+        card.innerHTML = `
+          <img src="${entry.imageUrl}" alt="Tree Upload" class="img-fluid" />
+          <p><strong>🌱 Planted on:</strong> ${new Date(entry.timestamp).toLocaleString()}</p>
+          <p><strong>📍 Location:</strong> ${entry.location || 'Not specified'}</p>
+          <p><strong>🪙 Reward:</strong> <span class="coin-badge">+1 GreenCoin</span></p>
+        `;
+        list.appendChild(card);
+      });
+
+    } catch (error) {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: error.message,
+        footer: 'Redirecting to login...'
+      });
+      setTimeout(() => {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      }, 2000);
+    }
+  }
+
+  // 🚪 Logout Handler
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    Swal.fire({
+      title: 'Logout?',
+      text: 'Are you sure you want to logout?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#dc3545',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', loadHistory);
+</script>
