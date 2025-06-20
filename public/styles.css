@@ -1,0 +1,218 @@
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Base Styles */
+:root {
+    --primary-color: #2e7d32;
+    --secondary-color: #81c784;
+    --dark-color: #1b5e20;
+    --light-color: #e8f5e9;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    padding-top: 80px;
+    background-color: #f8f9fa;
+}
+
+/* Navigation */
+.navbar {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+/* Hero Section */
+.hero {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, var(--light-color), #fff);
+}
+
+.hero h1 {
+    line-height: 1.2;
+}
+
+/* Upload Section */
+.upload-section {
+    background-color: #fff;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+}
+
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: var(--secondary-color);
+    background-color: rgba(129, 199, 132, 0.05);
+}
+
+.upload-label {
+    cursor: pointer;
+}
+
+/* Features */
+.feature-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Buttons */
+.btn-success {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success:hover {
+    background-color: var(--dark-color);
+    border-color: var(--dark-color);
+}
+
+.btn-outline-light:hover {
+    color: var(--primary-color);
+}
+
+/* Alert */
+.alert {
+    border-radius: 8px;
+}
+
+/* Footer */
+footer a {
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--secondary-color) !important;
+}
+
+.social-icons a {
+    font-size: 1.2rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px;
+    }
+    
+    .hero {
+        padding: 4rem 0;
+        text-align: center;
+    }
+    
+    .hero .d-flex {
+        justify-content: center;
+    }
+}
+
+
+
+
+:root {
+    --dark-green: #1a5632;
+    --light-green: #e8f5e9;
+    --medium-green: #4caf50;
+    --accent-green: #81c784;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light-green);
+}
+
+.bg-dark-green {
+    background-color: var(--dark-green) !important;
+}
+
+.bg-light-green {
+    background-color: var(--light-green) !important;
+}
+
+.text-dark-green {
+    color: var(--dark-green) !important;
+}
+
+.btn-dark-green {
+    background-color: var(--dark-green);
+    color: white;
+    border: none;
+}
+
+.btn-dark-green:hover {
+    background-color: #134826;
+    color: white;
+}
+
+.card {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-btn:hover {
+    background-color: var(--dark-green);
+    color: white !important;
+}
+
+.toggle-password:hover {
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+
+/* Animation for form */
+.card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 2rem !important;
+    }
+}
