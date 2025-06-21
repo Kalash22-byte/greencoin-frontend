@@ -66,16 +66,17 @@ async function loadUserProfile() {
 
     const data = await response.json();
     console.log('[Profile] Data received:', data);
-    return data;
+    return data.user; // ✅ FIXED HERE
   } catch (error) {
     console.error('[Profile Error]', error);
-    return { // Fallback data
+    return {
       name: 'Green User',
       email: 'user@example.com',
       coins: 0
     };
   }
 }
+
 
 async function loadHistory() {
   try {
