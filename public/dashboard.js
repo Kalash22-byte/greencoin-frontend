@@ -51,24 +51,29 @@ function loadUserProfile() {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   })
-  .then(async res => {
-    if (!res.ok) throw new Error('Unauthorized or invalid token');
-    return res.json();
-  })
+  .then(res => res.json())
   .then(data => {
-    console.log("PROFILE DATA:", data);
-    document.getElementById('userName').textContent = data.name;
-    document.getElementById('userEmail').textContent = data.email;
-    document.getElementById('coinBalance').textContent = data.coins;
+    console.log("✅ PROFILE DATA:", data);
+
+    const nameEl = document.getElementById('userName');
+    const emailEl = document.getElementById('userEmail');
+    const coinEl = document.getElementById('coinBalance');
+
+    if (!nameEl || !emailEl || !coinEl) {
+      console.error("❌ One or more elements not found in HTML.");
+      return;
+    }
+
+    nameEl.textContent = data.name || 'Green User';
+    emailEl.textContent = data.email || 'example@green.com';
+    coinEl.textContent = data.coins ?? '0'; // use ?? to allow 0
   })
   .catch(err => {
-    console.error("Profile fetch error:", err);
-    Swal.fire("Session Expired", "Please log in again.", "warning").then(() => {
-      localStorage.removeItem('token');
-      window.location.href = 'login.html';
-    });
+    console.error("❌ Error loading profile:", err);
+    Swal.fire("Error", "Could not load user profile.", "error");
   });
 }
+
 
 // ✅ 8. Load upload history
 function loadHistory() {
