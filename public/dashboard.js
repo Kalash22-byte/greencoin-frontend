@@ -1,24 +1,20 @@
-// Check if user is logged in
+// ✅ Redirect to login page if no token
 if (!localStorage.getItem('token')) {
   window.location.href = 'login.html';
 }
 
-// Teachable Machine Model URL
-const MODEL_URL = 'https://teachablemachine.withgoogle.com/models/12waan13f/';
+// ✅ Teachable Machine model path (you can change this to 'model/model.json' if hosted locally)
+const MODEL_URL = 'model/';
+let model;
 
-// Variables for upload cooldown
+// ✅ Cooldown control
 let lastUploadTime = localStorage.getItem('lastUploadTime') || 0;
 let cooldownInterval;
 
-// Initialize model
-let model;
-
+// ✅ Load the Teachable Machine model
 async function initModel() {
   try {
-    const modelURL = MODEL_URL + 'model.json';
-    const metadataURL = MODEL_URL + 'metadata.json';
-    
-    model = await tmImage.load(modelURL, metadataURL);
+    model = await tmImage.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
     console.log('Model loaded successfully');
   } catch (error) {
     console.error('Error loading model:', error);
@@ -26,7 +22,7 @@ async function initModel() {
   }
 }
 
-// Initialize the dashboard
+// ✅ Initialize dashboard
 async function initDashboard() {
   await initModel();
   checkCooldown();
@@ -34,28 +30,29 @@ async function initDashboard() {
   loadHistory();
 }
 
-// Check upload cooldown
+// ✅ Check upload cooldown
 function checkCooldown() {
   const now = Date.now();
-  const cooldownPeriod = 5 * 60 * 1000; // 5 minutes in milliseconds
+  const cooldownPeriod = 5 * 60 * 1000; // 5 mins
   const timeSinceLastUpload = now - lastUploadTime;
-  
+
   if (timeSinceLastUpload < cooldownPeriod) {
-    const remainingTime = cooldownPeriod - timeSinceLastUpload;
-    startCooldownTimer(remainingTime);
+    const remaining = cooldownPeriod - timeSinceLastUpload;
+    startCooldownTimer(remaining);
     document.getElementById('uploadBtn').disabled = true;
     document.getElementById('cooldownInfo').classList.remove('d-none');
   }
 }
 
+// ✅ Start countdown timer UI
 function startCooldownTimer(remainingTime) {
   clearInterval(cooldownInterval);
-  
+
   function updateTimer() {
-    const minutes = Math.floor(remainingTime / 60000);
-    const seconds = Math.floor((remainingTime % 60000) / 1000);
-    document.getElementById('cooldownTimer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    
+    const mins = Math.floor(remainingTime / 60000);
+    const secs = Math.floor((remainingTime % 60000) / 1000);
+    document.getElementById('cooldownTimer').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
     if (remainingTime <= 0) {
       clearInterval(cooldownInterval);
       document.getElementById('uploadBtn').disabled = false;
@@ -64,17 +61,15 @@ function startCooldownTimer(remainingTime) {
       remainingTime -= 1000;
     }
   }
-  
+
   updateTimer();
   cooldownInterval = setInterval(updateTimer, 1000);
 }
 
-// Fetch user data from API
+// ✅ Load user profile
 function loadUserProfile() {
   fetch('https://greencoin-backend.onrender.com/api/user/profile', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
   })
   .then(res => res.json())
   .then(data => {
@@ -87,28 +82,26 @@ function loadUserProfile() {
   });
 }
 
-// Load user history
+// ✅ Load tree upload history
 function loadHistory() {
   fetch('https://greencoin-backend.onrender.com/api/tree/history', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
   })
   .then(res => res.json())
   .then(data => {
-    const historyList = document.getElementById('historyList');
-    historyList.innerHTML = '';
-    
+    const list = document.getElementById('historyList');
+    list.innerHTML = '';
+
     if (data.length === 0) {
-      historyList.innerHTML = '<div class="text-center py-3 text-muted">No upload history yet</div>';
+      list.innerHTML = '<div class="text-center py-3 text-muted">No upload history yet</div>';
       return;
     }
-    
+
     data.forEach(item => {
       const date = new Date(item.timestamp);
-      const historyItem = document.createElement('div');
-      historyItem.className = 'list-group-item history-item mb-2';
-      historyItem.innerHTML = `
+      const el = document.createElement('div');
+      el.className = 'list-group-item history-item mb-2';
+      el.innerHTML = `
         <div class="d-flex justify-content-between">
           <div>
             <h6 class="mb-1">Tree Upload</h6>
@@ -117,9 +110,8 @@ function loadHistory() {
           <div class="text-success">
             +${item.coinsEarned} <i class="bi bi-coin"></i>
           </div>
-        </div>
-      `;
-      historyList.appendChild(historyItem);
+        </div>`;
+      list.appendChild(el);
     });
   })
   .catch(() => {
@@ -127,10 +119,8 @@ function loadHistory() {
   });
 }
 
-// Camera controls
-let currentStream;
-let currentCameraIndex = 0;
-let videoDevices = [];
+// ✅ Camera logic
+let currentStream, currentCameraIndex = 0, videoDevices = [];
 
 async function getVideoDevices() {
   const devices = await navigator.mediaDevices.enumerateDevices();
@@ -138,13 +128,13 @@ async function getVideoDevices() {
 }
 
 async function startCamera(deviceId = null) {
-  if (currentStream) {
-    currentStream.getTracks().forEach(track => track.stop());
-  }
+  if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+
   const constraints = {
     video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: "environment" },
     audio: false
   };
+
   try {
     currentStream = await navigator.mediaDevices.getUserMedia(constraints);
     document.getElementById("video").srcObject = currentStream;
@@ -153,6 +143,7 @@ async function startCamera(deviceId = null) {
   }
 }
 
+// ✅ Button handlers
 document.getElementById("uploadBtn").addEventListener("click", () => {
   document.getElementById("camera-section").style.display = "block";
   startCamera();
@@ -174,26 +165,21 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
   ctx.font = "20px Arial";
   ctx.fillText(new Date().toLocaleString(), 10, canvas.height - 10);
 
-  // Verify with Teachable Machine model
   const predictionDiv = document.getElementById("modelPrediction");
   predictionDiv.innerHTML = '<div class="spinner-border text-success" role="status"><span class="visually-hidden">Verifying...</span></div>';
-  
+
   try {
     const prediction = await model.predict(canvas);
     const isTree = prediction.some(p => p.className.toLowerCase().includes('tree') && p.probability > 0.7);
-    
+
     if (!isTree) {
       predictionDiv.innerHTML = '<div class="alert alert-danger">This doesn\'t appear to be a tree. Please try again.</div>';
       return;
     }
-    
+
     predictionDiv.innerHTML = '<div class="alert alert-success">Tree verified! Uploading...</div>';
-    
-    Swal.fire({
-      title: 'Uploading...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
+
+    Swal.fire({ title: 'Uploading...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
     canvas.toBlob(async (blob) => {
       const formData = new FormData();
@@ -210,11 +196,10 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
       Swal.close();
 
       if (res.ok) {
-        // Set cooldown
         lastUploadTime = Date.now();
         localStorage.setItem('lastUploadTime', lastUploadTime);
         checkCooldown();
-        
+
         Swal.fire("✅ Success", "Tree uploaded & coin added!", "success");
         setTimeout(() => {
           window.location.reload();
@@ -224,13 +209,14 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
         Swal.fire("❌ Upload Failed", "Please try again.", "error");
       }
     }, 'image/jpeg');
+
   } catch (error) {
     console.error('Prediction error:', error);
     predictionDiv.innerHTML = '<div class="alert alert-warning">Verification failed. Please try again.</div>';
   }
 });
 
-// Check for #upload in URL and auto-trigger upload section
+// ✅ Auto open camera if link has #upload
 document.addEventListener('DOMContentLoaded', () => {
   if (window.location.hash === '#upload') {
     document.getElementById('uploadBtn').click();
@@ -238,8 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('camera-section')?.scrollIntoView({ behavior: 'smooth' });
     }, 500);
   }
-  
-  // Initialize dashboard
+
   initDashboard();
   getVideoDevices();
 });
