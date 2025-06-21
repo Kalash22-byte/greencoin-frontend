@@ -44,22 +44,29 @@ async function loadModel() {
   }
 }
 
-// ✅ 7. Load user profile
+// ✅ 7. Load user profile (UPDATED)
 function loadUserProfile() {
   fetch('https://greencoin-backend.onrender.com/api/user/profile', {
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   })
-  .then(res => res.json())
+  .then(async res => {
+    if (!res.ok) throw new Error('Unauthorized or invalid token');
+    return res.json();
+  })
   .then(data => {
     console.log("PROFILE DATA:", data);
     document.getElementById('userName').textContent = data.name;
     document.getElementById('userEmail').textContent = data.email;
     document.getElementById('coinBalance').textContent = data.coins;
   })
-  .catch(() => {
-    Swal.fire("Error", "Could not load user profile.", "error");
+  .catch(err => {
+    console.error("Profile fetch error:", err);
+    Swal.fire("Session Expired", "Please log in again.", "warning").then(() => {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    });
   });
 }
 
