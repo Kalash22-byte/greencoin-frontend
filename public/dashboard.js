@@ -1,88 +1,74 @@
-// STRICT MODE FOR BETTER ERROR DETECTION
 'use strict';
 
-// 1. ENHANCED AUTH CHECK
+// Global Variables
 const token = localStorage.getItem('token');
-if (!token || token.length < 10) { // Basic token validation
-  console.error('Invalid or missing token:', token);
-  localStorage.removeItem('token');
+let model;
+let currentStream;
+let lastUploadTime = parseInt(localStorage.getItem('lastUploadTime')) || 0;
+let cooldownInterval;
+
+// 1. Authentication Check
+if (!token) {
   window.location.href = 'login.html';
 }
 
-// 2. DOM READY CHECKER
-function domReady() {
-  return new Promise(resolve => {
-    if (document.readyState !== 'loading') {
-      resolve();
-    } else {
-      document.addEventListener('DOMContentLoaded', resolve);
-    }
-  });
-}
-
-// 3. MAIN EXECUTION
-(async function initDashboard() {
-  console.group('Dashboard Initialization');
+// 2. Main Initialization
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('[Init] Starting dashboard initialization...');
   
   try {
-    // Wait for both DOM and critical elements
-    await domReady();
-    await verifyCriticalElements();
+    // Load TensorFlow model first
+    console.log('[Init] Loading AI model...');
+    model = await tmImage.load('./model/model.json', './model/metadata.json');
     
-    // Load data
+    // Load all data in parallel
+    console.log('[Init] Loading user data...');
     const [profile, history] = await Promise.all([
-      safeLoadProfile(),
-      safeLoadHistory()
+      loadUserProfile(),
+      loadHistory()
     ]);
     
     // Update UI
     updateProfileUI(profile);
     updateHistoryUI(history);
-    
-    // Initialize features
-    setupEventListeners();
     checkCooldown();
+    setupEventListeners();
     
-    console.log('✅ Dashboard initialized successfully');
+    // Enable upload button
+    document.getElementById('uploadBtn').disabled = false;
+    
+    console.log('[Init] Dashboard ready');
   } catch (error) {
-    console.error('❌ Initialization failed:', error);
-    showErrorToast(error.message || 'Dashboard initialization failed');
-  } finally {
-    console.groupEnd();
-  }
-})();
-
-// 4. ELEMENT VERIFICATION
-function verifyCriticalElements() {
-  const requiredElements = [
-    'userName', 'userEmail', 'coinBalance', 
-    'historyList', 'uploadBtn'
-  ];
-  
-  const missing = requiredElements.filter(id => !document.getElementById(id));
-  
-  if (missing.length) {
-    throw new Error(`Missing elements: ${missing.join(', ')}`);
-  }
-}
-
-// 5. SAFE DATA LOADERS
-async function safeLoadProfile() {
-  try {
-    console.log('Fetching profile...');
-    const response = await fetch('https://greencoin-backend.onrender.com/api/user/profile', {
-      headers: { 'Authorization': `Bearer ${token}` }
+    console.error('[Init Error]', error);
+    Swal.fire({
+      title: 'Initialization Error',
+      text: error.message || 'Failed to load dashboard',
+      icon: 'error'
     });
-    
+  }
+});
+
+// 3. Data Loading Functions
+async function loadUserProfile() {
+  try {
+    console.log('[Profile] Fetching profile data...');
+    const response = await fetch('https://greencoin-backend.onrender.com/api/user/profile', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `HTTP ${response.status}`);
     }
-    
+
     const data = await response.json();
-    console.log('Profile data:', data);
+    console.log('[Profile] Data received:', data);
     return data;
   } catch (error) {
-    console.error('Profile load failed:', error);
+    console.error('[Profile Error]', error);
     return { // Fallback data
       name: 'Green User',
       email: 'user@example.com',
@@ -91,115 +77,222 @@ async function safeLoadProfile() {
   }
 }
 
-async function safeLoadHistory() {
+async function loadHistory() {
   try {
-    console.log('Fetching history...');
+    console.log('[History] Fetching history...');
     const response = await fetch('https://greencoin-backend.onrender.com/api/tree/history', {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
-    
-    return await response.json();
+
+    const data = await response.json();
+    console.log('[History] Data received:', data);
+    return data;
   } catch (error) {
-    console.error('History load failed:', error);
-    return []; // Return empty array if fails
+    console.error('[History Error]', error);
+    return []; // Return empty array on error
   }
 }
 
-// 6. UI UPDATERS WITH SAFETY CHECKS
+// 4. UI Update Functions
 function updateProfileUI(data) {
+  console.log('[UI] Updating profile UI with:', data);
+  
   try {
-    // Double-check elements
-    const nameEl = document.getElementById('userName');
-    const emailEl = document.getElementById('userEmail');
-    const coinEl = document.getElementById('coinBalance');
-    
-    if (!nameEl || !emailEl || !coinEl) {
-      throw new Error('Profile elements missing');
-    }
-    
-    // Update with fallbacks
-    nameEl.textContent = data?.name || 'User';
-    emailEl.textContent = data?.email || 'No email';
-    coinEl.textContent = data?.coins ?? 0;
-    
-    console.log('Profile UI updated');
+    document.getElementById('userName').textContent = data.name || 'User';
+    document.getElementById('userEmail').textContent = data.email || 'No email';
+    document.getElementById('coinBalance').textContent = data.coins ?? '0';
   } catch (error) {
-    console.error('Failed to update profile UI:', error);
+    console.error('[UI Error] Profile update failed:', error);
   }
 }
 
 function updateHistoryUI(items) {
   const container = document.getElementById('historyList');
   if (!container) return;
-  
+
   try {
-    container.innerHTML = items?.length ? items.map(item => `
-      <div class="list-group-item">
+    container.innerHTML = items.length ? items.map(item => `
+      <div class="list-group-item animate__animated animate__fadeIn">
         <div class="d-flex justify-content-between">
           <div>
-            <h6>${item.type || 'Tree Upload'}</h6>
-            <small>${new Date(item.timestamp).toLocaleString()}</small>
+            <h6 class="mb-1">${item.type || 'Tree Upload'}</h6>
+            <small class="text-muted">${new Date(item.timestamp).toLocaleString()}</small>
           </div>
-          <span class="text-success">+${item.coinsEarned || 0} coins</span>
+          <div class="text-success">+${item.coinsEarned || 0} <i class="bi bi-coin"></i></div>
         </div>
       </div>
-    `).join('') : '<div class="text-muted">No history yet</div>';
-    
-    console.log('History UI updated');
+    `).join('') : '<div class="text-center py-3 text-muted">No history yet</div>';
   } catch (error) {
-    container.innerHTML = '<div class="text-danger">Failed to load history</div>';
-    console.error('History render error:', error);
+    console.error('[UI Error] History update failed:', error);
+    container.innerHTML = '<div class="alert alert-danger">Failed to load history</div>';
   }
 }
 
-// 7. ERROR HANDLING
-function showErrorToast(message) {
-  const toast = document.createElement('div');
-  toast.className = 'position-fixed bottom-0 end-0 p-3';
-  toast.innerHTML = `
-    <div class="toast show" role="alert">
-      <div class="toast-header bg-danger text-white">
-        <strong class="me-auto">Error</strong>
-        <button class="btn-close btn-close-white" onclick="this.closest('.toast').remove()"></button>
-      </div>
-      <div class="toast-body">${message}</div>
-    </div>
-  `;
-  document.body.appendChild(toast);
+// 5. Cooldown Functions
+function checkCooldown() {
+  const now = Date.now();
+  const cooldownMs = 5 * 60 * 1000; // 5 minutes
+  const remaining = lastUploadTime + cooldownMs - now;
+
+  if (remaining > 0) {
+    document.getElementById('uploadBtn').disabled = true;
+    document.getElementById('cooldownInfo').classList.remove('d-none');
+    startCooldownTimer(remaining);
+  }
 }
 
-// 8. EVENT LISTENERS
-function setupEventListeners() {
-  // Upload button
-  document.getElementById('uploadBtn').addEventListener('click', () => {
-    document.getElementById('camera-section').style.display = 'block';
-    startCamera().catch(console.error);
-  });
+function startCooldownTimer(ms) {
+  clearInterval(cooldownInterval);
   
-  // Add other event listeners here...
+  const timerElement = document.getElementById('cooldownTimer');
+  if (!timerElement) return;
+
+  const update = () => {
+    const seconds = Math.round(ms / 1000);
+    if (seconds <= 0) {
+      clearInterval(cooldownInterval);
+      document.getElementById('uploadBtn').disabled = false;
+      document.getElementById('cooldownInfo').classList.add('d-none');
+      return;
+    }
+    
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    timerElement.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    ms -= 1000;
+  };
+
+  update();
+  cooldownInterval = setInterval(update, 1000);
 }
 
-// 9. CAMERA FUNCTIONS
+// 6. Camera Functions
 async function startCamera() {
   try {
     if (currentStream) {
       currentStream.getTracks().forEach(track => track.stop());
     }
-    
-    currentStream = await navigator.mediaDevices.getUserMedia({
+
+    currentStream = await navigator.mediaDevices.getUserMedia({ 
       video: { facingMode: 'environment' }
     });
-    
-    const video = document.getElementById('video');
-    if (video) {
-      video.srcObject = currentStream;
-    }
+    document.getElementById('video').srcObject = currentStream;
   } catch (error) {
-    console.error('Camera error:', error);
-    showErrorToast('Camera access denied');
+    console.error('[Camera Error]', error);
+    Swal.fire({
+      title: 'Camera Error',
+      text: 'Please enable camera permissions',
+      icon: 'error'
+    });
+  }
+}
+
+// 7. Event Listeners
+function setupEventListeners() {
+  // Upload Button
+  document.getElementById('uploadBtn').addEventListener('click', () => {
+    document.getElementById('camera-section').style.display = 'block';
+    startCamera();
+  });
+
+  // Capture Button
+  document.getElementById('captureBtn').addEventListener('click', captureAndUpload);
+}
+
+// 8. Capture and Upload
+async function captureAndUpload() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const predictionDiv = document.getElementById('modelPrediction');
+
+  // Set canvas dimensions
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Add timestamp
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.font = '16px Arial';
+  ctx.fillText(new Date().toLocaleString(), 10, canvas.height - 10);
+
+  // Verify with AI model
+  predictionDiv.innerHTML = '<div class="spinner-border text-success"></div> Verifying...';
+  
+  try {
+    const prediction = await model.predict(canvas);
+    const isTree = prediction.some(p => 
+      p.className.toLowerCase().includes('tree') && 
+      p.probability > 0.7
+    );
+
+    if (!isTree) {
+      predictionDiv.innerHTML = `
+        <div class="alert alert-danger animate__animated animate__shakeX">
+          <i class="bi bi-exclamation-triangle"></i> This doesn't appear to be a tree
+        </div>
+      `;
+      return;
+    }
+
+    // Upload the image
+    await uploadImage(canvas);
+  } catch (error) {
+    console.error('[Upload Error]', error);
+    predictionDiv.innerHTML = `
+      <div class="alert alert-danger animate__animated animate__shakeX">
+        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'Upload failed'}
+      </div>
+    `;
+  }
+}
+
+async function uploadImage(canvas) {
+  const swal = Swal.fire({
+    title: 'Uploading...',
+    html: 'Please wait while we process your tree',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const blob = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/jpeg', 0.9);
+    });
+
+    const formData = new FormData();
+    formData.append('photo', blob, 'tree.jpg');
+
+    const response = await fetch('https://greencoin-backend.onrender.com/api/tree/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    // Update last upload time
+    lastUploadTime = Date.now();
+    localStorage.setItem('lastUploadTime', lastUploadTime.toString());
+
+    await swal.close();
+    Swal.fire({
+      title: 'Success!',
+      text: 'Tree uploaded and verified',
+      icon: 'success'
+    }).then(() => window.location.reload());
+  } catch (error) {
+    await swal.close();
+    throw error;
   }
 }
