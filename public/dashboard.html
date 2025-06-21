@@ -45,8 +45,8 @@
     <!-- User Info -->
     <div class="text-center mb-4">
       <img src="./logo.png" alt="GreenCoin Logo" class="avatar mb-3">
-      <h2>Welcome, <span id="userName">...</span></h2>
-      <p><i class="bi bi-envelope"></i> <span id="userEmail">...</span></p>
+      <h2>Welcome, <span id="userName">Loading...</span></h2>
+      <p><i class="bi bi-envelope"></i> <span id="userEmail">Loading...</span></p>
       <h1 class="coin-display"><i class="bi bi-coin"></i> <span id="coinBalance">0</span> GreenCoins</h1>
     </div>
 
@@ -95,6 +95,19 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const testName = document.getElementById('userName');
+      const testEmail = document.getElementById('userEmail');
+      const testCoins = document.getElementById('coinBalance');
+
+      if (testName && testEmail && testCoins) {
+        console.log("✅ HTML element IDs found and ready to use.");
+      } else {
+        console.error("❌ One or more HTML elements are missing. Check IDs in HTML.");
+      }
+    });
+  </script>
   <script src="dashboard.js"></script>
 </body>
 </html>
