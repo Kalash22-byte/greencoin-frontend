@@ -25,6 +25,7 @@
       height: 100px;
       border-radius: 50%;
       border: 3px solid #28a745;
+      object-fit: cover;
     }
     .btn-premium {
       border-radius: 30px;
@@ -38,16 +39,29 @@
     #camera-section {
       margin-top: 30px;
     }
+    .loading-spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 0.2em solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spinner-border 0.75s linear infinite;
+    }
+    @keyframes spinner-border {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
   <div class="container py-5">
     <!-- User Info -->
     <div class="text-center mb-4">
-      <img src="./logo.png" alt="GreenCoin Logo" class="avatar mb-3">
-      <h2>Welcome, <span id="userName">Loading...</span></h2>
-      <p><i class="bi bi-envelope"></i> <span id="userEmail">Loading...</span></p>
-      <h1 class="coin-display"><i class="bi bi-coin"></i> <span id="coinBalance">0</span> GreenCoins</h1>
+      <img src="./images/logo.jpg" alt="GreenCoin Logo" class="avatar mb-3" 
+           onerror="this.src='https://via.placeholder.com/100?text=GC'">
+      <h2>Welcome, <span id="userName"><span class="loading-spinner"></span></span></h2>
+      <p><i class="bi bi-envelope"></i> <span id="userEmail"><span class="loading-spinner"></span></span></p>
+      <h1 class="coin-display"><i class="bi bi-coin"></i> <span id="coinBalance"><span class="loading-spinner"></span></span> GreenCoins</h1>
     </div>
 
     <!-- Cooldown Info -->
@@ -58,7 +72,7 @@
     <!-- Action Buttons -->
     <div class="row g-3 mb-4 text-center">
       <div class="col-md-6">
-        <button id="uploadBtn" class="btn btn-success w-100 btn-premium">
+        <button id="uploadBtn" class="btn btn-success w-100 btn-premium" disabled>
           <i class="bi bi-upload me-2"></i> Upload Tree
         </button>
       </div>
@@ -89,25 +103,39 @@
     <!-- Upload History -->
     <div class="mt-5">
       <h4 class="mb-3 text-center">Upload History</h4>
-      <div id="historyList" class="list-group shadow-sm"></div>
+      <div id="historyList" class="list-group shadow-sm">
+        <div class="text-center py-3">
+          <span class="loading-spinner"></span> Loading history...
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- Required Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  <script src="dashboard.js"></script>
+  
+  <!-- Debug Script -->
   <script>
+    // Verify critical elements exist
     document.addEventListener('DOMContentLoaded', () => {
-      const testName = document.getElementById('userName');
-      const testEmail = document.getElementById('userEmail');
-      const testCoins = document.getElementById('coinBalance');
-
-      if (testName && testEmail && testCoins) {
-        console.log("✅ HTML element IDs found and ready to use.");
-      } else {
-        console.error("❌ One or more HTML elements are missing. Check IDs in HTML.");
+      const elements = ['userName', 'userEmail', 'coinBalance', 'historyList', 'uploadBtn'];
+      elements.forEach(id => {
+        if (!document.getElementById(id)) {
+          console.error(`MISSING ELEMENT: #${id}`);
+        }
+      });
+      
+      // Verify logo image loaded
+      const logo = document.querySelector('.avatar');
+      if (logo) {
+        logo.onerror = () => {
+          console.warn('Logo image failed to load, using placeholder');
+        };
+        console.log('Logo src:', logo.src);
       }
     });
   </script>
-  <script src="dashboard.js"></script>
 </body>
 </html>
