@@ -1,28 +1,24 @@
 'use strict';
 
-// Global Variables
 const token = localStorage.getItem('token');
 let model;
 let currentStream;
 let lastUploadTime = parseInt(localStorage.getItem('lastUploadTime')) || 0;
 let cooldownInterval;
 
-// 1. Authentication Check
 if (!token) {
   window.location.href = 'login.html';
 }
 
-// 2. Main Initialization
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[Init] Starting dashboard initialization...');
 
   try {
     // Load Teachable Machine model
     const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
-const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
-model = await tmImage.load(modelURL, metadataURL);
-
-    console.log('[Init] AI model loaded');
+    const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
+    model = await tmImage.load(modelURL, metadataURL);
+    console.log('[Init] AI model loaded:', model);
 
     // Load user data
     const [profile, history] = await Promise.all([
@@ -36,7 +32,6 @@ model = await tmImage.load(modelURL, metadataURL);
     setupEventListeners();
 
     document.getElementById('uploadBtn').disabled = false;
-
     console.log('[Init] Dashboard ready');
   } catch (error) {
     console.error('[Init Error]', error);
@@ -48,7 +43,6 @@ model = await tmImage.load(modelURL, metadataURL);
   }
 });
 
-// 3. Data Loading
 async function loadUserProfile() {
   try {
     const response = await fetch('https://greencoin-backend.onrender.com/api/user/profile', {
@@ -58,20 +52,13 @@ async function loadUserProfile() {
       }
     });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || `HTTP ${response.status}`);
-    }
+    if (!response.ok) throw new Error((await response.json()).message || `HTTP ${response.status}`);
 
     const data = await response.json();
     return data.user;
   } catch (error) {
     console.error('[Profile Error]', error);
-    return {
-      name: 'Green User',
-      email: 'user@example.com',
-      coins: 0
-    };
+    return { name: 'Green User', email: 'user@example.com', coins: 0 };
   }
 }
 
@@ -85,19 +72,21 @@ async function loadHistory() {
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error('[History Error]', error);
     return [];
   }
 }
 
-// 4. UI Updates
 function updateProfileUI(data) {
-  document.getElementById('userName').textContent = data.name || 'User';
-  document.getElementById('userEmail').textContent = data.email || 'No email';
-  document.getElementById('coinBalance').textContent = data.coins ?? '0';
+  try {
+    document.getElementById('userName').textContent = data.name || 'User';
+    document.getElementById('userEmail').textContent = data.email || 'No email';
+    document.getElementById('coinBalance').textContent = data.coins ?? '0';
+  } catch (error) {
+    console.error('[UI Error] Profile update failed:', error);
+  }
 }
 
 function updateHistoryUI(items) {
@@ -117,12 +106,11 @@ function updateHistoryUI(items) {
       </div>
     `).join('') : '<div class="text-center py-3 text-muted">No history yet</div>';
   } catch (error) {
-    console.error('[UI Error] History update failed:', error);
     container.innerHTML = '<div class="alert alert-danger">Failed to load history</div>';
+    console.error('[UI Error] History update failed:', error);
   }
 }
 
-// 5. Cooldown
 function checkCooldown() {
   const now = Date.now();
   const cooldownMs = 5 * 60 * 1000;
@@ -137,6 +125,7 @@ function checkCooldown() {
 
 function startCooldownTimer(ms) {
   clearInterval(cooldownInterval);
+
   const timerElement = document.getElementById('cooldownTimer');
   if (!timerElement) return;
 
@@ -148,6 +137,7 @@ function startCooldownTimer(ms) {
       document.getElementById('cooldownInfo').classList.add('d-none');
       return;
     }
+
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     timerElement.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -158,29 +148,20 @@ function startCooldownTimer(ms) {
   cooldownInterval = setInterval(update, 1000);
 }
 
-// 6. Camera Functions
 async function startCamera() {
   try {
     if (currentStream) {
       currentStream.getTracks().forEach(track => track.stop());
     }
 
-    currentStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
-
+    currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
     document.getElementById('video').srcObject = currentStream;
   } catch (error) {
     console.error('[Camera Error]', error);
-    Swal.fire({
-      title: 'Camera Error',
-      text: 'Please enable camera permissions',
-      icon: 'error'
-    });
+    Swal.fire({ title: 'Camera Error', text: 'Please enable camera permissions', icon: 'error' });
   }
 }
 
-// 7. Events
 function setupEventListeners() {
   document.getElementById('uploadBtn').addEventListener('click', () => {
     document.getElementById('camera-section').style.display = 'block';
@@ -190,7 +171,6 @@ function setupEventListeners() {
   document.getElementById('captureBtn').addEventListener('click', captureAndUpload);
 }
 
-// 8. Capture + AI + Upload
 async function captureAndUpload() {
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
@@ -200,8 +180,6 @@ async function captureAndUpload() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  // Add timestamp
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
   ctx.font = '16px Arial';
   ctx.fillText(new Date().toLocaleString(), 10, canvas.height - 10);
@@ -212,28 +190,29 @@ async function captureAndUpload() {
     const prediction = await model.predict(canvas);
     console.log('[AI] Prediction results:', prediction);
 
+    predictionDiv.innerHTML = prediction.map(p =>
+      `<div>${p.className}: ${(p.probability * 100).toFixed(2)}%</div>`
+    ).join('');
+
     const isTree = prediction.some(p =>
-      (p.className.toLowerCase() === 'tree' || p.className.toLowerCase().includes('tree')) &&
-      p.probability > 0.7
+      p.className.toLowerCase().includes('tree') && p.probability > 0.7
     );
 
     if (!isTree) {
-      predictionDiv.innerHTML = `
-        <div class="alert alert-danger animate__animated animate__shakeX">
+      predictionDiv.innerHTML += `
+        <div class="alert alert-danger animate__animated animate__shakeX mt-2">
           <i class="bi bi-exclamation-triangle"></i> This doesn't appear to be a tree
-        </div>
-      `;
+        </div>`;
       return;
     }
 
     await uploadImage(canvas);
   } catch (error) {
-    console.error('[Prediction Error]', error);
+    console.error('[Upload Error]', error);
     predictionDiv.innerHTML = `
       <div class="alert alert-danger animate__animated animate__shakeX">
-        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'AI failed'}
-      </div>
-    `;
+        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'Upload failed'}
+      </div>`;
   }
 }
 
@@ -246,9 +225,7 @@ async function uploadImage(canvas) {
   });
 
   try {
-    const blob = await new Promise(resolve => {
-      canvas.toBlob(resolve, 'image/jpeg', 0.9);
-    });
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
 
     const formData = new FormData();
     formData.append('photo', blob, 'tree.jpg');
@@ -274,10 +251,6 @@ async function uploadImage(canvas) {
     }).then(() => window.location.reload());
   } catch (error) {
     await swal.close();
-    Swal.fire({
-      title: 'Upload Failed',
-      text: error.message || 'Unknown error',
-      icon: 'error'
-    });
+    throw error;
   }
 }
