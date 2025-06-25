@@ -14,7 +14,7 @@ if (!token) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[Init] Starting dashboard initialization...');
-  
+
   try {
     model = await tmImage.load(
       'https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json',
@@ -72,7 +72,7 @@ async function loadHistory() {
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    return data;
+    return data.history || [];
   } catch (error) {
     console.error('[History Error]', error);
     return [];
@@ -196,7 +196,6 @@ async function captureAndUpload() {
       <div>${p.className}: ${(p.probability * 100).toFixed(1)}%</div>
     `).join('');
 
-    // ✅ Strict check: only accept if className === 'tree' && prob > 0.7
     const isTree = predictions.some(p =>
       p.className.trim().toLowerCase() === 'tree' && p.probability > 0.7
     );
