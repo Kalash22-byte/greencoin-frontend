@@ -1,41 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GreenCoin Dashboard</title>
-  
+
   <!-- Favicon -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
   <!-- CSS Libraries -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
 
+  <!-- Custom Styles -->
   <style>
     :root {
       --primary-green: #28a745;
       --eco-gradient: linear-gradient(135deg, #28a745, #5cb85c);
-      --shadow-green: 0 10px 30px rgba(40, 167, 69, 0.2);
     }
-    
+
     body {
-      background: linear-gradient(135deg, #f0f9f0, #ffffff);
       font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
+      background: linear-gradient(135deg, #f0fdf4, #ffffff);
       overflow-x: hidden;
       color: #333;
     }
-    
-    .container {
-      max-width: 1200px;
-      position: relative;
-      padding-bottom: 3rem;
+
+    .container { max-width: 1200px; padding-bottom: 4rem; }
+
+    .profile-card, .coin-balance-card, .history-section, #camera-section {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(40, 167, 69, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
     }
-    
-    /* Glow Effects */
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid white;
+      object-fit: cover;
+      box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+      background: #f8f9fa;
+    }
+
+    .coin-display {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #28a745;
+    }
+
+    .action-btn {
+      border-radius: 15px;
+      font-weight: 600;
+      padding: 1rem;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-upload { background: var(--eco-gradient); color: white; }
+    .btn-redeem { background: linear-gradient(135deg, #ffc107, #fd7e14); color: #000; }
+
+    #camera-section { display: none; }
+    #video, #canvas { width: 100%; max-height: 500px; border-radius: 10px; background: #eee; }
+
+    .camera-controls { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+
+    #predictionResults { display: none; margin-top: 1rem; }
+
+    #cooldownInfo {
+      display: none;
+      background: #fff3cd;
+      color: #856404;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .history-item {
+      padding: 1rem;
+      border-left: 4px solid #28a745;
+      background: #f8fff8;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+    }
+
     .glow-effect {
       position: absolute;
       border-radius: 50%;
@@ -44,627 +97,88 @@
       z-index: -1;
       background: var(--primary-green);
     }
-    
+
     .glow-1 { width: 300px; height: 300px; top: -100px; left: -100px; }
     .glow-2 { width: 400px; height: 400px; bottom: -150px; right: -150px; }
-    
-    /* User Profile Section */
-    .profile-card {
-      background: white;
-      border-radius: 20px;
-      box-shadow: var(--shadow-green);
-      padding: 2rem;
-      margin-bottom: 2rem;
-      border: none;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .profile-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: var(--eco-gradient);
-    }
-    
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 4px solid white;
-      object-fit: cover;
-      box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
-      transition: all 0.3s ease;
-      background: #f8f9fa;
-    }
-    
-    .avatar:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
-    }
-    
-    /* Coin Balance Display */
-    .coin-balance-card {
-      background: white;
-      border-radius: 20px;
-      box-shadow: var(--shadow-green);
-      padding: 2rem;
-      margin-bottom: 2rem;
-      text-align: center;
-      border: 1px solid rgba(40, 167, 69, 0.1);
-    }
-    
-    .coin-display {
-      font-size: 3rem;
-      font-weight: 700;
-      color: #28a745;
-      margin: 10px 0;
-      text-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
-    }
-    
-    .coin-display i {
-      margin-right: 10px;
-    }
-    
-    /* Action Buttons */
-    .action-btn {
-      border-radius: 15px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      padding: 1rem;
-      transition: all 0.3s ease;
-      border: none;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    .btn-upload {
-      background: var(--eco-gradient);
-      color: white;
-    }
-    
-    .btn-redeem {
-      background: linear-gradient(135deg, #ffc107, #fd7e14);
-      color: #000;
-    }
-    
-    /* Camera Section */
-    #camera-section {
-      background: white;
-      border-radius: 20px;
-      box-shadow: var(--shadow-green);
-      padding: 2rem;
-      margin: 2rem 0;
-      display: none;
-    }
-    
-    #video {
-      width: 100%;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      max-height: 500px;
-      object-fit: cover;
-      aspect-ratio: 16/9;
-      background: #f8f9fa;
-    }
-    
-    .camera-controls {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    
-    /* Prediction Results */
-    #predictionResults {
-      background: white;
-      border-radius: 15px;
-      padding: 1.5rem;
-      margin-top: 1.5rem;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-      display: none;
-    }
-    
-    .prediction-badge {
-      font-size: 1rem;
-      font-weight: 600;
-      padding: 0.5rem 1rem;
-      border-radius: 50px;
-    }
-    
-    .tree-detected {
-      background: rgba(40, 167, 69, 0.1);
-      color: var(--primary-green);
-    }
-    
-    .no-tree {
-      background: rgba(220, 53, 69, 0.1);
-      color: #dc3545;
-    }
-    
-    .confidence-meter {
-      height: 10px;
-      border-radius: 5px;
-      background: #e9ecef;
-      margin: 0.5rem 0;
-      overflow: hidden;
-    }
-    
-    .confidence-level {
-      height: 100%;
-      border-radius: 5px;
-      background: var(--eco-gradient);
-      width: 0%;
-      transition: width 0.5s ease;
-    }
-    
-    /* Cooldown Info */
-    #cooldownInfo {
-      border-radius: 15px;
-      font-weight: 500;
-      box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
-      border: none;
-      background: #fff3cd;
-      color: #856404;
-      padding: 1rem;
-      text-align: center;
-      margin: 1rem 0;
-      display: none;
-    }
-    
-    /* History Section */
-    .history-section {
-      background: white;
-      border-radius: 20px;
-      box-shadow: var(--shadow-green);
-      padding: 2rem;
-      margin-top: 2rem;
-    }
-    
-    .history-item {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 0.75rem;
-      transition: all 0.3s ease;
-      border-left: 4px solid var(--primary-green);
-      background: rgba(40, 167, 69, 0.03);
-    }
-    
-    .history-item:hover {
-      transform: translateX(5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-    
-    .history-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(40, 167, 69, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-      color: var(--primary-green);
-    }
-    
-    .history-details {
-      flex: 1;
-    }
-    
-    .history-date {
-      font-size: 0.8rem;
-      color: #6c757d;
-    }
-    
-    .history-status {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 50px;
-      font-weight: 600;
-    }
-    
-    .status-verified {
-      background: rgba(40, 167, 69, 0.1);
-      color: var(--primary-green);
-    }
-    
-    .status-pending {
-      background: rgba(255, 193, 7, 0.1);
-      color: #ffc107;
-    }
-    
-    /* Leaf Decorations */
-    .leaf-decoration {
-      position: absolute;
-      opacity: 0.1;
-      z-index: -1;
-      color: var(--primary-green);
-    }
-    
-    .leaf-1 {
-      top: 10%;
-      left: 5%;
-      transform: rotate(20deg);
-      font-size: 5rem;
-    }
-    
-    .leaf-2 {
-      bottom: 15%;
-      right: 5%;
-      transform: rotate(-15deg);
-      font-size: 7rem;
-    }
-    
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-      .coin-display { font-size: 2.5rem; }
-      .avatar { width: 100px; height: 100px; }
-      .action-btn { padding: 0.75rem; }
-      .leaf-1, .leaf-2 { font-size: 3rem; }
-    }
-    
-    @media (max-width: 576px) {
-      .coin-display { font-size: 2rem; }
-      .camera-controls { flex-direction: column; gap: 0.75rem; }
-      .camera-controls .btn { width: 100%; }
-    }
-    
-    @media (max-width: 400px) {
-      .profile-card, 
-      .coin-balance-card, 
-      .history-section { padding: 1.5rem; }
-    }
   </style>
 </head>
 <body>
-  <!-- Background Glow Effects -->
+  <!-- Glow background -->
   <div class="glow-effect glow-1"></div>
   <div class="glow-effect glow-2"></div>
-  
-  <!-- Leaf Decorations -->
-  <i class="bi bi-tree-fill leaf-decoration leaf-1" aria-hidden="true"></i>
-  <i class="bi bi-tree-fill leaf-decoration leaf-2" aria-hidden="true"></i>
 
   <div class="container py-5">
-    <!-- User Profile Card -->
+    <!-- Profile -->
     <div class="profile-card animate__animated animate__fadeIn">
       <div class="row align-items-center">
         <div class="col-md-3 text-center">
-          <img src="./images/logo.jpg" alt="User Avatar" class="avatar mb-3" 
+          <img src="./images/logo.jpg" alt="Avatar" class="avatar"
                onerror="this.src='https://ui-avatars.com/api/?name=GC&background=28a745&color=fff&size=200'">
         </div>
         <div class="col-md-9">
-          <h1 class="h2 mb-2">Welcome, <span id="userName" class="fw-bold">Green Warrior</span></h1>
-          <p class="mb-3"><i class="bi bi-envelope-fill me-2" aria-hidden="true"></i> <span id="userEmail">user@greencoin.eco</span></p>
-          <div class="d-flex flex-wrap gap-2">
-            <span class="badge bg-success bg-opacity-10 text-success py-2 px-3">
-              <i class="bi bi-person-check-fill me-1" aria-hidden="true"></i> Verified Member
-            </span>
-            <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
-              <i class="bi bi-tree-fill me-1" aria-hidden="true"></i> <span id="treesPlanted">42</span> Trees Planted
-            </span>
-          </div>
+          <h2>Welcome, <span id="userName">Green Warrior</span></h2>
+          <p><i class="bi bi-envelope-fill me-2"></i> <span id="userEmail">user@greencoin.eco</span></p>
         </div>
       </div>
     </div>
 
-    <!-- Coin Balance Card -->
-    <div class="coin-balance-card animate__animated animate__fadeIn">
-      <div class="text-center">
-        <h2 class="h5 text-muted mb-3">Your GreenCoin Balance</h2>
-        <h1 class="coin-display m-0">
-          <i class="bi bi-coin" aria-hidden="true"></i> <span id="coinBalance">1,250</span>
-        </h1>
-        <p class="text-muted mt-2 mb-0">Keep planting to earn more rewards!</p>
-      </div>
+    <!-- Coin Balance -->
+    <div class="coin-balance-card text-center animate__animated animate__fadeIn">
+      <h5>Your GreenCoin Balance</h5>
+      <div class="coin-display"><i class="bi bi-coin"></i> <span id="coinBalance">0</span></div>
+      <small class="text-muted">Keep planting trees to earn more</small>
     </div>
 
-    <!-- Cooldown Alert -->
-    <div id="cooldownInfo" class="animate__animated animate__fadeIn" role="alert">
-      <div class="d-flex align-items-center justify-content-center">
-        <i class="bi bi-hourglass-split me-2 fs-4" aria-hidden="true"></i>
-        <div>
-          <strong>Upload Cooldown Active</strong>
-          <div>You can upload again in <span id="cooldownTimer" class="fw-bold">5:00</span> minutes</div>
-        </div>
-      </div>
+    <!-- Cooldown Info -->
+    <div id="cooldownInfo" class="animate__animated animate__fadeIn">
+      <i class="bi bi-hourglass-split"></i> Upload Cooldown: <strong><span id="cooldownTimer">5:00</span></strong>
     </div>
 
     <!-- Action Buttons -->
     <div class="row g-3 mb-4">
       <div class="col-md-6">
         <button id="uploadBtn" class="action-btn btn-upload w-100">
-          <i class="bi bi-upload me-2" aria-hidden="true"></i> Upload Tree Verification
+          <i class="bi bi-camera-fill me-2"></i> Upload Tree
         </button>
       </div>
       <div class="col-md-6">
         <a href="redeem.html" class="action-btn btn-redeem w-100">
-          <i class="bi bi-gift-fill me-2" aria-hidden="true"></i> Redeem Rewards
+          <i class="bi bi-gift-fill me-2"></i> Redeem Rewards
         </a>
       </div>
     </div>
 
     <!-- Camera Section -->
     <div id="camera-section" class="animate__animated animate__fadeIn">
-      <h2 class="h5 mb-3 text-center"><i class="bi bi-camera-fill me-2" aria-hidden="true"></i> Tree Verification</h2>
-      <p class="text-muted text-center mb-3">Capture a clear photo of your planted tree</p>
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas" style="display: none;"></canvas>
 
-      <!-- Live Camera Feed -->
-      <div id="live-camera" class="text-center">
-        <video id="video" autoplay playsinline class="w-100 rounded border border-success" 
-               aria-label="Live camera feed for tree verification" style="max-height: 500px;"></video>
-        <div class="camera-controls">
-          <button id="switchCameraBtn" class="btn btn-outline-secondary">
-            <i class="bi bi-camera-reverse" aria-hidden="true"></i> Switch Camera
-          </button>
-          <button id="captureBtn" class="btn btn-success">
-            <i class="bi bi-camera-fill me-1" aria-hidden="true"></i> Capture
-          </button>
-        </div>
+      <div class="camera-controls">
+        <button id="captureBtn" class="btn btn-success"><i class="bi bi-camera"></i> Capture</button>
+        <button id="retryBtn" class="btn btn-danger"><i class="bi bi-arrow-repeat"></i> Retry</button>
       </div>
 
-      <!-- Captured Image Preview -->
-      <div id="image-preview" class="text-center" style="display: none;">
-        <canvas id="canvas" class="w-100 rounded border border-success mb-3" 
-                aria-label="Captured image preview" style="max-height: 500px;"></canvas>
-        <div class="d-flex justify-content-center gap-3">
-          <button id="retryBtn" class="btn btn-outline-danger">
-            <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Retry
-          </button>
-          <button id="submitBtn" class="btn btn-success">
-            <i class="bi bi-check-circle" aria-hidden="true"></i> Submit
-          </button>
-        </div>
-      </div>
-
-      <!-- Prediction Results -->
-      <div id="predictionResults" class="mt-4 text-center">
-        <h3 class="h6 mb-3">AI Verification Results</h3>
-        <div id="modelPrediction" class="mb-3"></div>
-        <button id="confirmVerification" class="btn btn-success" disabled>
-          <i class="bi bi-check-circle me-1" aria-hidden="true"></i> Confirm Verification
-        </button>
+      <div id="predictionResults">
+        <h5>AI Verification</h5>
+        <div id="modelPrediction"></div>
       </div>
     </div>
 
     <!-- History Section -->
     <div class="history-section animate__animated animate__fadeInUp">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4 mb-0">
-          <i class="bi bi-clock-history me-2" aria-hidden="true"></i> Verification History
-        </h2>
-        <span class="badge bg-success bg-opacity-10 text-success py-2 px-3">
-          Last 30 Days
-        </span>
-      </div>
-      
-      <div id="historyList">
-        <!-- Example History Items -->
-        <div class="history-item">
-          <div class="history-icon">
-            <i class="bi bi-tree-fill" aria-hidden="true"></i>
-          </div>
-          <div class="history-details">
-            <div class="d-flex justify-content-between">
-              <strong>Tree Planting #42</strong>
-              <span class="history-date">Today, 10:30 AM</span>
-            </div>
-            <div class="d-flex justify-content-between mt-1">
-              <span class="text-success">+25 GreenCoins</span>
-              <span class="history-status status-verified">Verified</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="history-item">
-          <div class="history-icon">
-            <i class="bi bi-hourglass-split" aria-hidden="true"></i>
-          </div>
-          <div class="history-details">
-            <div class="d-flex justify-content-between">
-              <strong>Tree Planting #41</strong>
-              <span class="history-date">Yesterday, 4:15 PM</span>
-            </div>
-            <div class="d-flex justify-content-between mt-1">
-              <span class="text-muted">Pending review</span>
-              <span class="history-status status-pending">Processing</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="text-center py-3" id="emptyHistory" style="display: none;">
-          <i class="bi bi-tree text-muted" style="font-size: 2rem;" aria-hidden="true"></i>
-          <p class="mt-2 text-muted">No verification history yet</p>
-          <button id="uploadBtn2" class="btn btn-success mt-2">
-            <i class="bi bi-upload me-1" aria-hidden="true"></i> Upload Your First Tree
-          </button>
-        </div>
+      <h4><i class="bi bi-clock-history me-2"></i> Upload History</h4>
+      <div id="historyList" class="mt-3">
+        <!-- Items will be dynamically loaded -->
       </div>
     </div>
   </div>
 
-  <!-- Required Scripts -->
+  <!-- JS Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
-  
-  <!-- Main Application Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // DOM Elements
-      const uploadBtn = document.getElementById('uploadBtn');
-      const cameraSection = document.getElementById('camera-section');
-      const video = document.getElementById('video');
-      const canvas = document.getElementById('canvas');
-      const captureBtn = document.getElementById('captureBtn');
-      const retryBtn = document.getElementById('retryBtn');
-      const submitBtn = document.getElementById('submitBtn');
-      const switchCameraBtn = document.getElementById('switchCameraBtn');
-      const liveCamera = document.getElementById('live-camera');
-      const imagePreview = document.getElementById('image-preview');
-      const predictionResults = document.getElementById('predictionResults');
-      const confirmVerification = document.getElementById('confirmVerification');
-      const cooldownInfo = document.getElementById('cooldownInfo');
-      
-      // Camera state
-      let stream = null;
-      let facingMode = 'environment'; // Default to rear camera
-      
-      // Initialize camera
-      async function initCamera() {
-        try {
-          if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-          }
-          
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: { 
-              facingMode: facingMode,
-              width: { ideal: 1280 },
-              height: { ideal: 720 }
-            },
-            audio: false
-          });
-          
-          video.srcObject = stream;
-          video.play();
-        } catch (err) {
-          console.error('Camera error:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Camera Error',
-            text: 'Could not access the camera. Please ensure you have granted camera permissions.',
-            confirmButtonColor: '#28a745'
-          });
-        }
-      }
-      
-      // Capture image
-      function captureImage() {
-        const context = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        liveCamera.style.display = 'none';
-        imagePreview.style.display = 'block';
-      }
-      
-      // Retry capture
-      function retryCapture() {
-        imagePreview.style.display = 'none';
-        liveCamera.style.display = 'block';
-      }
-      
-      // Switch camera
-      function switchCamera() {
-        facingMode = facingMode === 'user' ? 'environment' : 'user';
-        initCamera();
-      }
-      
-      // Submit for verification
-      async function submitForVerification() {
-        // Show loading state
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
-        submitBtn.disabled = true;
-        
-        // Simulate AI processing delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Display results
-        imagePreview.style.display = 'none';
-        predictionResults.style.display = 'block';
-        
-        // Simulate prediction results (in a real app, this would come from your model)
-        const predictionElement = document.getElementById('modelPrediction');
-        predictionElement.innerHTML = `
-          <div class="prediction-badge tree-detected mb-2">
-            <i class="bi bi-tree-fill me-1"></i> Tree Detected
-          </div>
-          <div class="text-start">
-            <small class="text-muted">Confidence Level</small>
-            <div class="confidence-meter">
-              <div class="confidence-level" style="width: 85%"></div>
-            </div>
-            <small>85% confidence</small>
-          </div>
-          <p class="mt-3">This appears to be a healthy young tree. You'll earn <strong>25 GreenCoins</strong> after verification.</p>
-        `;
-        
-        confirmVerification.disabled = false;
-      }
-      
-      // Confirm verification
-      function confirmVerification() {
-        // Show cooldown
-        cooldownInfo.style.display = 'block';
-        startCooldownTimer(5); // 5 minute cooldown
-        
-        // Reset camera section
-        predictionResults.style.display = 'none';
-        liveCamera.style.display = 'block';
-        cameraSection.style.display = 'none';
-        
-        // Show success message
-        Swal.fire({
-          icon: 'success',
-          title: 'Verification Submitted!',
-          text: 'Your tree planting has been submitted for verification. You earned 25 GreenCoins!',
-          confirmButtonColor: '#28a745'
-        });
-        
-        // Update balance (simulated)
-        const currentBalance = parseInt(document.getElementById('coinBalance').textContent.replace(/,/g, ''));
-        document.getElementById('coinBalance').textContent = (currentBalance + 25).toLocaleString();
-        
-        // Update trees planted
-        const currentTrees = parseInt(document.getElementById('treesPlanted').textContent);
-        document.getElementById('treesPlanted').textContent = currentTrees + 1;
-      }
-      
-      // Cooldown timer
-      function startCooldownTimer(minutes) {
-        let time = minutes * 60;
-        const timerElement = document.getElementById('cooldownTimer');
-        
-        const timer = setInterval(() => {
-          const minutesLeft = Math.floor(time / 60);
-          const secondsLeft = time % 60;
-          
-          timerElement.textContent = `${minutesLeft}:${secondsLeft < 10 ? '0' : ''}${secondsLeft}`;
-          
-          if (time <= 0) {
-            clearInterval(timer);
-            cooldownInfo.style.display = 'none';
-          } else {
-            time--;
-          }
-        }, 1000);
-      }
-      
-      // Event Listeners
-      uploadBtn.addEventListener('click', () => {
-        cameraSection.style.display = 'block';
-        initCamera();
-      });
-      
-      captureBtn.addEventListener('click', captureImage);
-      retryBtn.addEventListener('click', retryCapture);
-      switchCameraBtn.addEventListener('click', switchCamera);
-      submitBtn.addEventListener('click', submitForVerification);
-      confirmVerification.addEventListener('click', confirmVerification);
-      
-      // Clean up camera on page exit
-      window.addEventListener('beforeunload', () => {
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-        }
-      });
-    });
-  </script>
+
+  <!-- Your main dashboard logic -->
+  <script src="dashboard.js" defer></script>
 </body>
 </html>
