@@ -15,28 +15,27 @@ if (!token) {
 // 2. Main Initialization
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[Init] Starting dashboard initialization...');
-  
+
   try {
-    // Load TensorFlow model first
-    console.log('[Init] Loading AI model...');
-    model = await tmImage.load('./model/model.json', './model/metadata.json');
-    
-    // Load all data in parallel
-    console.log('[Init] Loading user data...');
+    // Load Teachable Machine model
+    const modelURL = 'https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json';
+    const metadataURL = 'https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json';
+    model = await tmImage.load(modelURL, metadataURL);
+    console.log('[Init] AI model loaded');
+
+    // Load user data
     const [profile, history] = await Promise.all([
       loadUserProfile(),
       loadHistory()
     ]);
-    
-    // Update UI
+
     updateProfileUI(profile);
     updateHistoryUI(history);
     checkCooldown();
     setupEventListeners();
-    
-    // Enable upload button
+
     document.getElementById('uploadBtn').disabled = false;
-    
+
     console.log('[Init] Dashboard ready');
   } catch (error) {
     console.error('[Init Error]', error);
@@ -48,10 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// 3. Data Loading Functions
+// 3. Data Loading
 async function loadUserProfile() {
   try {
-    console.log('[Profile] Fetching profile data...');
     const response = await fetch('https://greencoin-backend.onrender.com/api/user/profile', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -65,8 +63,7 @@ async function loadUserProfile() {
     }
 
     const data = await response.json();
-    console.log('[Profile] Data received:', data);
-    return data.user; // ✅ FIXED HERE
+    return data.user;
   } catch (error) {
     console.error('[Profile Error]', error);
     return {
@@ -77,40 +74,29 @@ async function loadUserProfile() {
   }
 }
 
-
 async function loadHistory() {
   try {
-    console.log('[History] Fetching history...');
     const response = await fetch('https://greencoin-backend.onrender.com/api/tree/history', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const data = await response.json();
-    console.log('[History] Data received:', data);
     return data;
   } catch (error) {
     console.error('[History Error]', error);
-    return []; // Return empty array on error
+    return [];
   }
 }
 
-// 4. UI Update Functions
+// 4. UI Updates
 function updateProfileUI(data) {
-  console.log('[UI] Updating profile UI with:', data);
-  
-  try {
-    document.getElementById('userName').textContent = data.name || 'User';
-    document.getElementById('userEmail').textContent = data.email || 'No email';
-    document.getElementById('coinBalance').textContent = data.coins ?? '0';
-  } catch (error) {
-    console.error('[UI Error] Profile update failed:', error);
-  }
+  document.getElementById('userName').textContent = data.name || 'User';
+  document.getElementById('userEmail').textContent = data.email || 'No email';
+  document.getElementById('coinBalance').textContent = data.coins ?? '0';
 }
 
 function updateHistoryUI(items) {
@@ -135,10 +121,10 @@ function updateHistoryUI(items) {
   }
 }
 
-// 5. Cooldown Functions
+// 5. Cooldown
 function checkCooldown() {
   const now = Date.now();
-  const cooldownMs = 5 * 60 * 1000; // 5 minutes
+  const cooldownMs = 5 * 60 * 1000;
   const remaining = lastUploadTime + cooldownMs - now;
 
   if (remaining > 0) {
@@ -150,7 +136,6 @@ function checkCooldown() {
 
 function startCooldownTimer(ms) {
   clearInterval(cooldownInterval);
-  
   const timerElement = document.getElementById('cooldownTimer');
   if (!timerElement) return;
 
@@ -162,7 +147,6 @@ function startCooldownTimer(ms) {
       document.getElementById('cooldownInfo').classList.add('d-none');
       return;
     }
-    
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     timerElement.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -180,9 +164,10 @@ async function startCamera() {
       currentStream.getTracks().forEach(track => track.stop());
     }
 
-    currentStream = await navigator.mediaDevices.getUserMedia({ 
+    currentStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'environment' }
     });
+
     document.getElementById('video').srcObject = currentStream;
   } catch (error) {
     console.error('[Camera Error]', error);
@@ -194,26 +179,23 @@ async function startCamera() {
   }
 }
 
-// 7. Event Listeners
+// 7. Events
 function setupEventListeners() {
-  // Upload Button
   document.getElementById('uploadBtn').addEventListener('click', () => {
     document.getElementById('camera-section').style.display = 'block';
     startCamera();
   });
 
-  // Capture Button
   document.getElementById('captureBtn').addEventListener('click', captureAndUpload);
 }
 
-// 8. Capture and Upload
+// 8. Capture + AI + Upload
 async function captureAndUpload() {
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const predictionDiv = document.getElementById('modelPrediction');
 
-  // Set canvas dimensions
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -223,13 +205,14 @@ async function captureAndUpload() {
   ctx.font = '16px Arial';
   ctx.fillText(new Date().toLocaleString(), 10, canvas.height - 10);
 
-  // Verify with AI model
   predictionDiv.innerHTML = '<div class="spinner-border text-success"></div> Verifying...';
-  
+
   try {
     const prediction = await model.predict(canvas);
-    const isTree = prediction.some(p => 
-      p.className.toLowerCase().includes('tree') && 
+    console.log('[AI] Prediction results:', prediction);
+
+    const isTree = prediction.some(p =>
+      (p.className.toLowerCase() === 'tree' || p.className.toLowerCase().includes('tree')) &&
       p.probability > 0.7
     );
 
@@ -242,13 +225,12 @@ async function captureAndUpload() {
       return;
     }
 
-    // Upload the image
     await uploadImage(canvas);
   } catch (error) {
-    console.error('[Upload Error]', error);
+    console.error('[Prediction Error]', error);
     predictionDiv.innerHTML = `
       <div class="alert alert-danger animate__animated animate__shakeX">
-        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'Upload failed'}
+        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'AI failed'}
       </div>
     `;
   }
@@ -278,11 +260,8 @@ async function uploadImage(canvas) {
       body: formData
     });
 
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
+    if (!response.ok) throw new Error(await response.text());
 
-    // Update last upload time
     lastUploadTime = Date.now();
     localStorage.setItem('lastUploadTime', lastUploadTime.toString());
 
@@ -294,6 +273,10 @@ async function uploadImage(canvas) {
     }).then(() => window.location.reload());
   } catch (error) {
     await swal.close();
-    throw error;
+    Swal.fire({
+      title: 'Upload Failed',
+      text: error.message || 'Unknown error',
+      icon: 'error'
+    });
   }
 }
