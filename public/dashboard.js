@@ -1,6 +1,7 @@
 const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
 const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
 let model, webcamStream;
+let currentFacingMode = "environment"; // rear by default
 
 window.onload = () => {
   loadUserProfile();
@@ -12,6 +13,7 @@ window.onload = () => {
   document.getElementById("captureBtn").addEventListener("click", capturePhoto);
   document.getElementById("retryBtn").addEventListener("click", resetCamera);
   document.getElementById("submitBtn").addEventListener("click", uploadImage);
+  document.getElementById("switchCameraBtn").addEventListener("click", switchCamera);
 };
 
 async function loadUserProfile() {
@@ -27,19 +29,17 @@ async function loadUserProfile() {
 
 async function loadUploadHistory() {
   const res = await fetch("https://greencoin-backend.onrender.com/api/tree/history", {
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-});
-const data = await res.json();
-const history = data.history || [];
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
+  const data = await res.json();
+  const history = data.history || [];
 
-document.getElementById("historyList").innerHTML = history.map(item => `
-  <div class="mb-2">
-    <img src="${item.imageUrl}" style="max-height:150px;border-radius:8px;"><br>
-    <small>${new Date(item.timestamp).toLocaleString()}</small>
-  </div>
-`).join("");
-
-
+  document.getElementById("historyList").innerHTML = history.map(item => `
+    <div class="mb-2">
+      <img src="${item.imageUrl}" style="max-height:150px;border-radius:8px;"><br>
+      <small>${new Date(item.timestamp).toLocaleString()}</small>
+    </div>
+  `).join("");
 }
 
 async function loadModel() {
@@ -48,16 +48,28 @@ async function loadModel() {
 
 function openCamera() {
   if (isCooldownActive()) return;
-  navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: currentFacingMode }
+  }).then(stream => {
     webcamStream = stream;
     const video = document.getElementById("video");
     video.srcObject = stream;
+    video.style.display = "block";
+    document.getElementById("canvas").style.display = "none";
     document.getElementById("camera-section").style.display = "block";
     document.getElementById("captureBtn").style.display = "inline-block";
     document.getElementById("retryBtn").style.display = "none";
     document.getElementById("submitBtn").style.display = "none";
     document.getElementById("predictionResults").style.display = "none";
   }).catch(() => Swal.fire("Error", "Camera access denied", "error"));
+}
+
+function switchCamera() {
+  if (webcamStream) {
+    webcamStream.getTracks().forEach(track => track.stop());
+  }
+  currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+  openCamera();
 }
 
 function capturePhoto() {
@@ -68,7 +80,6 @@ function capturePhoto() {
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Draw timestamp
   const timestamp = new Date().toLocaleString();
   ctx.fillStyle = "rgba(0,0,0,0.7)";
   ctx.fillRect(10, canvas.height - 40, 300, 30);
@@ -111,8 +122,7 @@ function uploadImage() {
   const canvas = document.getElementById("canvas");
   canvas.toBlob(async blob => {
     const formData = new FormData();
-   formData.append("photo", blob, "tree.jpg"); // ✅ matches backend
-
+    formData.append("photo", blob, "tree.jpg"); // ✅ matches backend
 
     const res = await fetch("https://greencoin-backend.onrender.com/api/tree/upload", {
       method: "POST",
