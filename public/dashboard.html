@@ -15,77 +15,239 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
+    :root {
+      --primary-color: #28a745;
+      --premium-gold: #ffd700;
+      --premium-shadow: 0 10px 30px rgba(40, 167, 69, 0.2);
+    }
+    
     body {
-      background: linear-gradient(135deg, #e6f4ea, #ffffff);
+      background: linear-gradient(135deg, #e6f4ea, #f8fff8);
       font-family: 'Poppins', sans-serif;
       min-height: 100vh;
+      overflow-x: hidden;
     }
+    
+    .container {
+      max-width: 900px;
+      position: relative;
+    }
+    
+    /* Premium Glow Effect */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      left: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(40, 167, 69, 0.1), transparent 70%);
+      z-index: -1;
+    }
+    
+    .container::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      right: -50px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(40, 167, 69, 0.05), transparent 70%);
+      z-index: -1;
+    }
+    
     .avatar {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
-      border: 3px solid #28a745;
+      border: 4px solid var(--primary-color);
       object-fit: cover;
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+      transition: all 0.3s ease;
     }
+    
+    .avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    }
+    
     .btn-premium {
       border-radius: 30px;
       font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .btn-premium::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-premium:hover::after {
+      left: 100%;
+    }
+    
+    .btn-success {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
     .coin-display {
       font-size: 2.5rem;
       font-weight: 700;
-      color: #28a745;
+      color: var(--primary-color);
+      text-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
+      margin: 20px 0;
+      position: relative;
+      display: inline-block;
     }
+    
+    .coin-display::after {
+      content: 'PREMIUM';
+      position: absolute;
+      top: -10px;
+      right: -50px;
+      background: linear-gradient(to right, #ffd700, #ffcc00);
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 10px;
+      border-radius: 20px;
+      transform: rotate(15deg);
+    }
+    
     #camera-section {
       margin-top: 30px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: var(--premium-shadow);
+      border: 1px solid rgba(40, 167, 69, 0.2);
     }
-    .loading-spinner {
-      display: inline-block;
-      width: 1rem;
-      height: 1rem;
-      border: 0.2em solid currentColor;
-      border-right-color: transparent;
-      border-radius: 50%;
-      animation: spinner-border 0.75s linear infinite;
+    
+    #video {
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      max-height: 400px;
     }
-    @keyframes spinner-border {
-      to { transform: rotate(360deg); }
+    
+    /* History List Premium Styling */
+    #historyList {
+      border-radius: 15px;
+      overflow: hidden;
+      border: none;
+    }
+    
+    .list-group-item {
+      border-left: 4px solid var(--primary-color);
+      transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+      transform: translateX(5px);
+      background-color: rgba(40, 167, 69, 0.05);
+    }
+    
+    /* Cooldown Alert */
+    #cooldownInfo {
+      border-radius: 30px;
+      font-weight: 500;
+      box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+      border: none;
+    }
+    
+    /* Floating Leaves Decorations */
+    .leaf-decoration {
+      position: absolute;
+      opacity: 0.1;
+      z-index: -1;
+    }
+    
+    .leaf-1 {
+      top: 10%;
+      left: 5%;
+      transform: rotate(20deg);
+      font-size: 3rem;
+      color: var(--primary-color);
+    }
+    
+    .leaf-2 {
+      bottom: 15%;
+      right: 5%;
+      transform: rotate(-15deg);
+      font-size: 4rem;
+      color: var(--primary-color);
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .coin-display {
+        font-size: 2rem;
+      }
+      
+      .coin-display::after {
+        right: -40px;
+        font-size: 0.6rem;
+      }
+      
+      .avatar {
+        width: 90px;
+        height: 90px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Floating Leaf Decorations -->
+  <i class="bi bi-tree-fill leaf-decoration leaf-1"></i>
+  <i class="bi bi-tree-fill leaf-decoration leaf-2"></i>
+
   <div class="container py-5">
     <!-- User Info -->
     <div class="text-center mb-4">
-      <img src="./images/logo.jpg" alt="GreenCoin Logo" class="avatar mb-3" 
+      <img src="./images/logo.jpg" alt="GreenCoin Logo" class="avatar mb-3 animate__animated animate__fadeIn" 
            onerror="this.src='https://via.placeholder.com/100?text=GC'">
-     <h2>Welcome, <span id="userName">...</span> <span class="loading-spinner"></span></h2>
-<p><i class="bi bi-envelope"></i> <span id="userEmail">...</span> <span class="loading-spinner"></span></p>
-<h1 class="coin-display"><i class="bi bi-coin"></i> <span id="coinBalance">0</span> GreenCoins <span class="loading-spinner"></span></h1>
-
+      <h2>Welcome, <span id="userName">...</span></h2>
+      <p><i class="bi bi-envelope"></i> <span id="userEmail">...</span></p>
+      <h1 class="coin-display animate__animated animate__pulse animate__infinite"><i class="bi bi-coin"></i> <span id="coinBalance">0</span> GreenCoins</h1>
     </div>
 
     <!-- Cooldown Info -->
     <div id="cooldownInfo" class="alert alert-warning text-center d-none">
-      You can upload again in <span id="cooldownTimer">5:00</span>
+      <i class="bi bi-clock-history me-2"></i> You can upload again in <span id="cooldownTimer">5:00</span>
     </div>
 
     <!-- Action Buttons -->
     <div class="row g-3 mb-4 text-center">
       <div class="col-md-6">
-        <button id="uploadBtn" class="btn btn-success w-100 btn-premium" disabled>
+        <button id="uploadBtn" class="btn btn-success w-100 btn-premium py-3" disabled>
           <i class="bi bi-upload me-2"></i> Upload Tree
         </button>
       </div>
       <div class="col-md-6">
-        <a href="redeem.html" class="btn btn-warning w-100 btn-premium text-dark">
+        <a href="redeem.html" class="btn btn-warning w-100 btn-premium py-3 text-dark">
           <i class="bi bi-gift me-2"></i> Redeem Rewards
         </a>
       </div>
     </div>
 
     <!-- Camera Section -->
-    <div id="camera-section" style="display: none;">
+    <div id="camera-section" class="animate__animated animate__fadeIn" style="display: none;">
       <video id="video" autoplay playsinline class="w-100 rounded border border-success"></video>
       <canvas id="canvas" class="d-none"></canvas>
 
@@ -93,7 +255,7 @@
         <button id="switchCameraBtn" class="btn btn-outline-secondary">
           <i class="bi bi-camera-reverse"></i> Switch Camera
         </button>
-        <button id="captureBtn" class="btn btn-success">
+        <button id="captureBtn" class="btn btn-success btn-premium">
           <i class="bi bi-camera"></i> Capture
         </button>
       </div>
@@ -102,11 +264,18 @@
     </div>
 
     <!-- Upload History -->
-    <div class="mt-5">
-      <h4 class="mb-3 text-center">Upload History</h4>
+    <div class="mt-5 animate__animated animate__fadeInUp">
+      <h4 class="mb-3 text-center position-relative">
+        <span class="position-relative">
+          Upload History
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            Premium
+          </span>
+        </span>
+      </h4>
       <div id="historyList" class="list-group shadow-sm">
         <div class="text-center py-3">
-          <span class="loading-spinner"></span> Loading history...
+          Loading your eco-contributions...
         </div>
       </div>
     </div>
