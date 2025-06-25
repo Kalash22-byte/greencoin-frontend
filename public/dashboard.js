@@ -18,9 +18,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     // Load Teachable Machine model
-    const modelURL = 'https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json';
-    const metadataURL = 'https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json';
-    model = await tmImage.load(modelURL, metadataURL);
+    const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
+const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
+model = await tmImage.load(modelURL, metadataURL);
+
     console.log('[Init] AI model loaded');
 
     // Load user data
