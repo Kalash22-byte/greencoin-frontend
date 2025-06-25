@@ -109,7 +109,8 @@ function uploadImage() {
   const canvas = document.getElementById("canvas");
   canvas.toBlob(async blob => {
     const formData = new FormData();
-    formData.append("image", blob, "tree.jpg");
+   formData.append("photo", blob, "tree.jpg"); // ✅ matches backend
+
 
     const res = await fetch("https://greencoin-backend.onrender.com/api/tree/upload", {
       method: "POST",
