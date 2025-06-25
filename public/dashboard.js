@@ -27,17 +27,21 @@ async function loadUserProfile() {
 
 async function loadUploadHistory() {
   const res = await fetch("https://greencoin-backend.onrender.com/api/tree/history", {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
-  if (!res.ok) return;
-  const history = await res.json();
-  const list = document.getElementById("historyList");
-  list.innerHTML = history.map(item => `
-    <div class="mb-2">
-      <img src="${item.imageUrl}" style="max-height:150px;border-radius:8px;"><br>
-      <small>${new Date(item.timestamp).toLocaleString()}</small>
-    </div>
-  `).join("");
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+});
+const data = await res.json();
+const history = data.history || [];
+
+if (!Array.isArray(history)) return;
+
+const list = document.getElementById("historyList");
+list.innerHTML = history.map(item => `
+  <div class="mb-2">
+    <img src="${item.imageUrl}" style="max-height:150px;border-radius:8px;"><br>
+    <small>${new Date(item.timestamp).toLocaleString()}</small>
+  </div>
+`).join("");
+
 }
 
 async function loadModel() {
