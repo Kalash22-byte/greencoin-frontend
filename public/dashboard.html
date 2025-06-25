@@ -11,59 +11,84 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <style>
     :root {
-      --primary-color: #28a745;
+      --primary-green: #28a745;
       --premium-gold: #ffd700;
-      --premium-shadow: 0 10px 30px rgba(40, 167, 69, 0.2);
+      --eco-gradient: linear-gradient(135deg, #28a745, #5cb85c);
+      --shadow-green: 0 10px 30px rgba(40, 167, 69, 0.2);
+      --glow-effect: 0 0 15px rgba(40, 167, 69, 0.5);
     }
     
     body {
-      background: linear-gradient(135deg, #e6f4ea, #f8fff8);
+      background: linear-gradient(135deg, #f0f9f0, #ffffff);
       font-family: 'Poppins', sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
     }
     
     .container {
-      max-width: 900px;
+      max-width: 1200px;
       position: relative;
+      padding-bottom: 3rem;
     }
     
-    /* Premium Glow Effect */
-    .container::before {
-      content: '';
+    /* Premium Glow Effects */
+    .glow-effect {
       position: absolute;
-      top: -50px;
-      left: -50px;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, rgba(40, 167, 69, 0.1), transparent 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.15;
       z-index: -1;
     }
     
-    .container::after {
-      content: '';
-      position: absolute;
-      bottom: -50px;
-      right: -50px;
+    .glow-1 {
       width: 300px;
       height: 300px;
-      background: radial-gradient(circle, rgba(40, 167, 69, 0.05), transparent 70%);
-      z-index: -1;
+      top: -100px;
+      left: -100px;
+      background: var(--primary-green);
+    }
+    
+    .glow-2 {
+      width: 400px;
+      height: 400px;
+      bottom: -150px;
+      right: -150px;
+      background: var(--primary-green);
+    }
+    
+    /* User Profile Section */
+    .profile-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-green);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--eco-gradient);
     }
     
     .avatar {
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      border: 4px solid var(--primary-color);
+      border: 4px solid white;
       object-fit: cover;
-      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+      box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
       transition: all 0.3s ease;
+      background: #f8f9fa;
     }
     
     .avatar:hover {
@@ -71,17 +96,65 @@
       box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
     }
     
-    .btn-premium {
-      border-radius: 30px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      transition: all 0.3s ease;
+    /* Coin Balance Display */
+    .coin-balance-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-green);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
       position: relative;
       overflow: hidden;
     }
     
-    .btn-premium::after {
+    .coin-display {
+      font-size: 3rem;
+      font-weight: 700;
+      background: var(--eco-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 10px 0;
+      position: relative;
+      display: inline-block;
+      text-shadow: 0 2px 10px rgba(40, 167, 69, 0.2);
+    }
+    
+    .coin-icon {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .coin-icon::after {
+      content: 'PREMIUM';
+      position: absolute;
+      top: -15px;
+      right: -60px;
+      background: linear-gradient(to right, #ffd700, #ffcc00);
+      color: #000;
+      font-size: 0.8rem;
+      font-weight: bold;
+      padding: 3px 12px;
+      border-radius: 20px;
+      transform: rotate(15deg);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    /* Action Buttons */
+    .action-btn {
+      border-radius: 15px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 1rem;
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .action-btn::after {
       content: '';
       position: absolute;
       top: -50%;
@@ -98,190 +171,402 @@
       transition: all 0.3s ease;
     }
     
-    .btn-premium:hover::after {
+    .action-btn:hover::after {
       left: 100%;
     }
     
-    .btn-success {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
+    .btn-upload {
+      background: var(--eco-gradient);
+      color: white;
     }
     
-    .coin-display {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      text-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
-      margin: 20px 0;
-      position: relative;
-      display: inline-block;
-    }
-    
-    .coin-display::after {
-      content: 'PREMIUM';
-      position: absolute;
-      top: -10px;
-      right: -50px;
-      background: linear-gradient(to right, #ffd700, #ffcc00);
+    .btn-redeem {
+      background: linear-gradient(135deg, #ffd700, #ffcc00);
       color: #000;
-      font-size: 0.7rem;
-      font-weight: bold;
-      padding: 2px 10px;
-      border-radius: 20px;
-      transform: rotate(15deg);
     }
     
+    /* Camera Section */
     #camera-section {
-      margin-top: 30px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: var(--premium-shadow);
-      border: 1px solid rgba(40, 167, 69, 0.2);
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-green);
+      padding: 2rem;
+      margin: 2rem 0;
+      display: none;
     }
     
     #video {
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      max-height: 400px;
-    }
-    
-    /* History List Premium Styling */
-    #historyList {
+      width: 100%;
       border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      max-height: 500px;
+      object-fit: cover;
+      aspect-ratio: 16/9;
+      background: #f8f9fa;
+    }
+    
+    .camera-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    /* Prediction Results */
+    #predictionResults {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      display: none;
+    }
+    
+    .prediction-badge {
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+    }
+    
+    .tree-detected {
+      background: rgba(40, 167, 69, 0.1);
+      color: var(--primary-green);
+    }
+    
+    .no-tree {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+    }
+    
+    .confidence-meter {
+      height: 10px;
+      border-radius: 5px;
+      background: #e9ecef;
+      margin: 0.5rem 0;
       overflow: hidden;
-      border: none;
     }
     
-    .list-group-item {
-      border-left: 4px solid var(--primary-color);
-      transition: all 0.3s ease;
+    .confidence-level {
+      height: 100%;
+      border-radius: 5px;
+      background: var(--eco-gradient);
+      width: 0%;
+      transition: width 0.5s ease;
     }
     
-    .list-group-item:hover {
-      transform: translateX(5px);
-      background-color: rgba(40, 167, 69, 0.05);
-    }
-    
-    /* Cooldown Alert */
+    /* Cooldown Info */
     #cooldownInfo {
-      border-radius: 30px;
+      border-radius: 15px;
       font-weight: 500;
       box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
       border: none;
+      background: #fff3cd;
+      color: #856404;
+      padding: 1rem;
+      text-align: center;
+      margin: 1rem 0;
+      display: none;
     }
     
-    /* Floating Leaves Decorations */
+    /* History Section */
+    .history-section {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-green);
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary-green);
+      background: rgba(40, 167, 69, 0.03);
+    }
+    
+    .history-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .history-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(40, 167, 69, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      color: var(--primary-green);
+    }
+    
+    .history-details {
+      flex: 1;
+    }
+    
+    .history-date {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    
+    .history-status {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+    }
+    
+    .status-verified {
+      background: rgba(40, 167, 69, 0.1);
+      color: var(--primary-green);
+    }
+    
+    .status-pending {
+      background: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+    
+    /* Leaf Decorations */
     .leaf-decoration {
       position: absolute;
       opacity: 0.1;
       z-index: -1;
+      color: var(--primary-green);
     }
     
     .leaf-1 {
       top: 10%;
       left: 5%;
       transform: rotate(20deg);
-      font-size: 3rem;
-      color: var(--primary-color);
+      font-size: 5rem;
     }
     
     .leaf-2 {
       bottom: 15%;
       right: 5%;
       transform: rotate(-15deg);
-      font-size: 4rem;
-      color: var(--primary-color);
+      font-size: 7rem;
     }
     
     /* Responsive Adjustments */
     @media (max-width: 768px) {
       .coin-display {
-        font-size: 2rem;
+        font-size: 2.5rem;
       }
       
-      .coin-display::after {
-        right: -40px;
-        font-size: 0.6rem;
+      .coin-icon::after {
+        font-size: 0.7rem;
+        right: -50px;
+        top: -12px;
       }
       
       .avatar {
-        width: 90px;
-        height: 90px;
+        width: 100px;
+        height: 100px;
+      }
+      
+      .action-btn {
+        padding: 0.75rem;
+      }
+      
+      .leaf-1, .leaf-2 {
+        font-size: 3rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .coin-display {
+        font-size: 2rem;
+      }
+      
+      .coin-icon::after {
+        font-size: 0.6rem;
+        right: -40px;
+        top: -10px;
+      }
+      
+      .camera-controls {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .camera-controls .btn {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Floating Leaf Decorations -->
+  <!-- Background Glow Effects -->
+  <div class="glow-effect glow-1"></div>
+  <div class="glow-effect glow-2"></div>
+  
+  <!-- Leaf Decorations -->
   <i class="bi bi-tree-fill leaf-decoration leaf-1"></i>
   <i class="bi bi-tree-fill leaf-decoration leaf-2"></i>
 
   <div class="container py-5">
-    <!-- User Info -->
-    <div class="text-center mb-4">
-      <img src="./images/logo.jpg" alt="GreenCoin Logo" class="avatar mb-3 animate__animated animate__fadeIn" 
-           onerror="this.src='https://via.placeholder.com/100?text=GC'">
-      <h2>Welcome, <span id="userName">...</span></h2>
-      <p><i class="bi bi-envelope"></i> <span id="userEmail">...</span></p>
-      <h1 class="coin-display animate__animated animate__pulse animate__infinite"><i class="bi bi-coin"></i> <span id="coinBalance">0</span> GreenCoins</h1>
+    <!-- User Profile Card -->
+    <div class="profile-card animate__animated animate__fadeIn">
+      <div class="row align-items-center">
+        <div class="col-md-3 text-center">
+          <img src="./images/logo.jpg" alt="User Avatar" class="avatar mb-3" 
+               onerror="this.src='https://ui-avatars.com/api/?name=GC&background=28a745&color=fff&size=200'">
+        </div>
+        <div class="col-md-9">
+          <h2 class="mb-2">Welcome, <span id="userName" class="fw-bold">Green Warrior</span></h2>
+          <p class="mb-3"><i class="bi bi-envelope-fill me-2"></i> <span id="userEmail">user@greencoin.eco</span></p>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge bg-success bg-opacity-10 text-success py-2 px-3">
+              <i class="bi bi-award-fill me-1"></i> Premium Member
+            </span>
+            <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+              <i class="bi bi-tree-fill me-1"></i> 42 Trees Planted
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Cooldown Info -->
-    <div id="cooldownInfo" class="alert alert-warning text-center d-none">
-      <i class="bi bi-clock-history me-2"></i> You can upload again in <span id="cooldownTimer">5:00</span>
+    <!-- Coin Balance Card -->
+    <div class="coin-balance-card animate__animated animate__fadeIn">
+      <h5 class="text-muted mb-3">Your GreenCoin Balance</h5>
+      <h1 class="coin-display">
+        <span class="coin-icon">
+          <i class="bi bi-coin"></i> <span id="coinBalance">1,250</span>
+        </span>
+      </h1>
+      <p class="text-muted mb-0">Keep planting to earn more rewards!</p>
+    </div>
+
+    <!-- Cooldown Alert -->
+    <div id="cooldownInfo" class="animate__animated animate__fadeIn">
+      <div class="d-flex align-items-center justify-content-center">
+        <i class="bi bi-hourglass-split me-2 fs-4"></i>
+        <div>
+          <strong>Upload Cooldown Active</strong>
+          <div>You can upload again in <span id="cooldownTimer" class="fw-bold">5:00</span> minutes</div>
+        </div>
+      </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="row g-3 mb-4 text-center">
+    <div class="row g-3 mb-4">
       <div class="col-md-6">
-        <button id="uploadBtn" class="btn btn-success w-100 btn-premium py-3" disabled>
-          <i class="bi bi-upload me-2"></i> Upload Tree
+        <button id="uploadBtn" class="action-btn btn-upload w-100">
+          <i class="bi bi-upload me-2"></i> Upload Tree Verification
         </button>
       </div>
       <div class="col-md-6">
-        <a href="redeem.html" class="btn btn-warning w-100 btn-premium py-3 text-dark">
-          <i class="bi bi-gift me-2"></i> Redeem Rewards
+        <a href="redeem.html" class="action-btn btn-redeem w-100">
+          <i class="bi bi-gift-fill me-2"></i> Redeem Eco Rewards
         </a>
       </div>
     </div>
 
     <!-- Camera Section -->
-    <div id="camera-section" class="animate__animated animate__fadeIn" style="display: none;">
-      <video id="video" autoplay playsinline class="w-100 rounded border border-success"></video>
-      <canvas id="canvas" class="d-none"></canvas>
+    <div id="camera-section" class="animate__animated animate__fadeIn">
+      <h5 class="mb-3 text-center"><i class="bi bi-camera-fill me-2"></i> Tree Verification</h5>
+      <p class="text-muted text-center mb-3">Capture a clear photo of your planted tree for verification</p>
+      
+      <div class="position-relative">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" class="d-none"></canvas>
+      </div>
 
-      <div class="mt-3 d-flex justify-content-center gap-3">
+      <div class="camera-controls">
         <button id="switchCameraBtn" class="btn btn-outline-secondary">
-          <i class="bi bi-camera-reverse"></i> Switch Camera
+          <i class="bi bi-camera-reverse me-1"></i> Switch Camera
         </button>
-        <button id="captureBtn" class="btn btn-success btn-premium">
-          <i class="bi bi-camera"></i> Capture
+        <button id="captureBtn" class="btn btn-success px-4">
+          <i class="bi bi-camera-fill me-1"></i> Capture
         </button>
       </div>
 
-      <div id="modelPrediction" class="mt-3 text-center"></div>
+      <!-- Prediction Results -->
+      <div id="predictionResults">
+        <h6 class="mb-3">AI Verification Results</h6>
+        <div id="modelPrediction" class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="prediction-badge tree-detected">
+              <i class="bi bi-tree-fill me-1"></i> Tree Detected
+            </span>
+            <span class="fw-bold">92%</span>
+          </div>
+          <div class="confidence-meter">
+            <div class="confidence-level" style="width: 92%"></div>
+          </div>
+        </div>
+        <button id="submitVerification" class="btn btn-success w-100" disabled>
+          <i class="bi bi-check-circle-fill me-1"></i> Submit Verification
+        </button>
+      </div>
     </div>
 
-    <!-- Upload History -->
-    <div class="mt-5 animate__animated animate__fadeInUp">
-      <h4 class="mb-3 text-center position-relative">
-        <span class="position-relative">
-          Upload History
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            Premium
-          </span>
+    <!-- History Section -->
+    <div class="history-section animate__animated animate__fadeInUp">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+          <i class="bi bi-clock-history me-2"></i> Verification History
+        </h4>
+        <span class="badge bg-success bg-opacity-10 text-success py-2 px-3">
+          Last 30 Days
         </span>
-      </h4>
-      <div id="historyList" class="list-group shadow-sm">
-        <div class="text-center py-3">
-          Loading your eco-contributions...
+      </div>
+      
+      <div id="historyList">
+        <!-- Example History Items -->
+        <div class="history-item">
+          <div class="history-icon">
+            <i class="bi bi-tree-fill"></i>
+          </div>
+          <div class="history-details">
+            <div class="d-flex justify-content-between">
+              <strong>Tree Planting #42</strong>
+              <span class="history-date">Today, 10:30 AM</span>
+            </div>
+            <div class="d-flex justify-content-between mt-1">
+              <span class="text-muted">+25 GreenCoins</span>
+              <span class="history-status status-verified">Verified</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="history-item">
+          <div class="history-icon">
+            <i class="bi bi-hourglass-split"></i>
+          </div>
+          <div class="history-details">
+            <div class="d-flex justify-content-between">
+              <strong>Tree Planting #41</strong>
+              <span class="history-date">Yesterday, 4:15 PM</span>
+            </div>
+            <div class="d-flex justify-content-between mt-1">
+              <span class="text-muted">Pending review</span>
+              <span class="history-status status-pending">Processing</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center py-3" id="emptyHistory" style="display: none;">
+          <i class="bi bi-tree text-muted" style="font-size: 2rem;"></i>
+          <p class="mt-2 text-muted">No verification history yet</p>
+          <button id="uploadBtn2" class="btn btn-success mt-2">
+            <i class="bi bi-upload me-1"></i> Upload Your First Tree
+          </button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Required Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
   <script src="dashboard.js"></script>
@@ -290,20 +575,36 @@
   <script>
     // Verify critical elements exist
     document.addEventListener('DOMContentLoaded', () => {
-      const elements = ['userName', 'userEmail', 'coinBalance', 'historyList', 'uploadBtn'];
-      elements.forEach(id => {
+      const requiredElements = [
+        'userName', 'userEmail', 'coinBalance', 
+        'uploadBtn', 'captureBtn', 'switchCameraBtn',
+        'video', 'canvas', 'modelPrediction',
+        'cooldownInfo', 'cooldownTimer', 'historyList'
+      ];
+      
+      let allElementsExist = true;
+      
+      requiredElements.forEach(id => {
         if (!document.getElementById(id)) {
-          console.error(`MISSING ELEMENT: #${id}`);
+          console.error(`MISSING REQUIRED ELEMENT: #${id}`);
+          allElementsExist = false;
         }
       });
       
-      // Verify logo image loaded
-      const logo = document.querySelector('.avatar');
-      if (logo) {
-        logo.onerror = () => {
-          console.warn('Logo image failed to load, using placeholder');
-        };
-        console.log('Logo src:', logo.src);
+      if (allElementsExist) {
+        console.log('All required elements are present');
+      }
+      
+      // Simulate camera section toggle for demo
+      const uploadBtn = document.getElementById('uploadBtn');
+      if (uploadBtn) {
+        uploadBtn.addEventListener('click', () => {
+          const cameraSection = document.getElementById('camera-section');
+          if (cameraSection) {
+            cameraSection.style.display = cameraSection.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('predictionResults').style.display = 'none';
+          }
+        });
       }
     });
   </script>
