@@ -1,9 +1,9 @@
-// dashboard.js (Final Version for GreenCoin)
+// dashboard.js (Final Version - Fixed & Enhanced)
 
 const backendUrl = 'https://greencoin-backend.onrender.com';
 const modelURL = 'https://teachablemachine.withgoogle.com/models/cfn939LYh/';
 
-let model, webcam, labelContainer;
+let model;
 let cooldownTime = 5 * 60; // 5 minutes
 let cooldownInterval;
 let currentStream;
@@ -13,7 +13,6 @@ let usingFrontCamera = true;
 const userNameEl = document.getElementById('userName');
 const userEmailEl = document.getElementById('userEmail');
 const coinBalanceEl = document.getElementById('coinBalance');
-const treesPlantedEl = document.getElementById('treesPlanted');
 const historyListEl = document.getElementById('historyList');
 const uploadBtn = document.getElementById('uploadBtn');
 const video = document.getElementById('video');
@@ -21,15 +20,13 @@ const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 const predictionResults = document.getElementById('predictionResults');
 const modelPrediction = document.getElementById('modelPrediction');
-const confirmVerificationBtn = document.getElementById('confirmVerificationBtn');
 const retryBtn = document.getElementById('retryBtn');
 const captureBtn = document.getElementById('captureBtn');
-const switchCameraBtn = document.getElementById('switchCameraBtn');
 const cameraSection = document.getElementById('camera-section');
 const cooldownInfo = document.getElementById('cooldownInfo');
 const cooldownTimer = document.getElementById('cooldownTimer');
-const imagePreview = document.getElementById('image-preview');
 const submitBtn = document.getElementById('submitBtn');
+const imagePreview = canvas; // reuse canvas for preview
 
 async function loadUserProfile() {
   const token = localStorage.getItem('token');
@@ -38,12 +35,14 @@ async function loadUserProfile() {
     const res = await fetch(`${backendUrl}/api/user/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Profile fetch failed');
     userNameEl.textContent = data.user.name;
     userEmailEl.textContent = data.user.email;
     coinBalanceEl.textContent = data.user.coins;
-    treesPlantedEl.textContent = data.user.totalTrees;
   } catch (err) {
     console.error(err);
     Swal.fire('Error', err.message, 'error');
@@ -56,6 +55,10 @@ async function loadUploadHistory() {
     const res = await fetch(`${backendUrl}/api/tree/history`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
     const data = await res.json();
     historyListEl.innerHTML = '';
     data.history.forEach(item => {
@@ -71,9 +74,7 @@ async function loadUploadHistory() {
 
 function startCamera() {
   const constraints = {
-    video: {
-      facingMode: usingFrontCamera ? 'user' : 'environment'
-    }
+    video: { facingMode: usingFrontCamera ? 'user' : 'environment' }
   };
   navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
@@ -81,11 +82,9 @@ function startCamera() {
       video.srcObject = stream;
       cameraSection.style.display = 'block';
       predictionResults.style.display = 'none';
-      imagePreview.style.display = 'none';
       captureBtn.style.display = 'inline-block';
       retryBtn.style.display = 'none';
       submitBtn.style.display = 'none';
-      confirmVerificationBtn.disabled = true;
     })
     .catch(err => {
       console.error('Camera error:', err);
@@ -117,7 +116,6 @@ async function captureImage() {
   canvas.height = height;
   context.drawImage(video, 0, 0, width, height);
   overlayTimestamp(context, width, height);
-  imagePreview.style.display = 'block';
   captureBtn.style.display = 'none';
   retryBtn.style.display = 'inline-block';
   submitBtn.style.display = 'inline-block';
@@ -132,7 +130,7 @@ async function runVerification() {
   const label = model.getClassLabels()[classIdx];
   modelPrediction.innerHTML = `<strong>Label:</strong> ${label}<br><strong>Confidence:</strong> ${(confidence * 100).toFixed(2)}%`;
   predictionResults.style.display = 'block';
-  confirmVerificationBtn.disabled = !(label.toLowerCase().includes('tree') && confidence > 0.85);
+  submitBtn.disabled = !(label.toLowerCase().includes('tree') && confidence > 0.85);
 }
 
 async function uploadImage() {
@@ -146,8 +144,11 @@ async function uploadImage() {
         headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
       Swal.fire('Success', 'Tree uploaded successfully!', 'success');
       stopCamera();
       cameraSection.style.display = 'none';
@@ -184,22 +185,14 @@ async function initTeachableMachine() {
 }
 
 // Event Listeners
-uploadBtn.addEventListener('click', () => {
-  startCamera();
-});
+uploadBtn.addEventListener('click', startCamera);
 captureBtn.addEventListener('click', captureImage);
 retryBtn.addEventListener('click', () => {
   stopCamera();
   startCamera();
 });
 submitBtn.addEventListener('click', uploadImage);
-switchCameraBtn.addEventListener('click', () => {
-  usingFrontCamera = !usingFrontCamera;
-  stopCamera();
-  startCamera();
-});
 
-// Initialize
 window.addEventListener('DOMContentLoaded', async () => {
   await loadUserProfile();
   await loadUploadHistory();
