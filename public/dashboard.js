@@ -177,45 +177,55 @@ async function captureAndUpload() {
   const ctx = canvas.getContext('2d');
   const predictionDiv = document.getElementById('modelPrediction');
 
+  // Set canvas dimensions and draw video frame
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Overlay timestamp
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
   ctx.font = '16px Arial';
   ctx.fillText(new Date().toLocaleString(), 10, canvas.height - 10);
 
+  // Show loading spinner
   predictionDiv.innerHTML = '<div class="spinner-border text-success"></div> Verifying...';
 
   try {
-    const prediction = await model.predict(canvas);
-    console.log('[AI] Prediction results:', prediction);
+    const predictions = await model.predict(canvas);
 
-    predictionDiv.innerHTML = prediction.map(p =>
-      `<div>${p.className}: ${(p.probability * 100).toFixed(2)}%</div>`
+    // Debug: show all class predictions
+    console.log('[AI] Prediction results:', predictions);
+
+    // Display all predictions to the user (optional)
+    predictionDiv.innerHTML = predictions.map(p => 
+      `<div>${p.className}: ${(p.probability * 100).toFixed(1)}%</div>`
     ).join('');
 
-    const isTree = prediction.some(p =>
+    // Check if any class contains "tree" and has high probability
+    const isTree = predictions.some(p =>
       p.className.toLowerCase().includes('tree') && p.probability > 0.7
     );
 
     if (!isTree) {
       predictionDiv.innerHTML += `
-        <div class="alert alert-danger animate__animated animate__shakeX mt-2">
-          <i class="bi bi-exclamation-triangle"></i> This doesn't appear to be a tree
-        </div>`;
+        <div class="alert alert-danger mt-2 animate__animated animate__shakeX">
+          <i class="bi bi-exclamation-triangle"></i> This doesn't appear to be a tree!
+        </div>
+      `;
       return;
     }
 
+    // Proceed to upload if it's a tree
     await uploadImage(canvas);
   } catch (error) {
-    console.error('[Upload Error]', error);
+    console.error('[AI Error]', error);
     predictionDiv.innerHTML = `
       <div class="alert alert-danger animate__animated animate__shakeX">
-        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'Upload failed'}
-      </div>`;
+        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'Model prediction failed'}
+      </div>
+    `;
   }
 }
-
 async function uploadImage(canvas) {
   const swal = Swal.fire({
     title: 'Uploading...',
