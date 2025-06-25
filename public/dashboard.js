@@ -1,9 +1,7 @@
-// dashboard.js (Final Clean Version)
 const backendUrl = 'https://greencoin-backend.onrender.com';
 const modelURL = 'https://teachablemachine.withgoogle.com/models/cfn939LYh/';
 
-let model;
-let currentStream;
+let model, currentStream;
 let cooldownTime = 5 * 60;
 let cooldownInterval;
 
@@ -16,17 +14,18 @@ const uploadBtn = document.getElementById('uploadBtn');
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
-const imagePreview = document.getElementById('image-preview');
-const predictionResults = document.getElementById('predictionResults');
-const modelPrediction = document.getElementById('modelPrediction');
+const cameraSection = document.getElementById('camera-section');
 const captureBtn = document.getElementById('captureBtn');
 const retryBtn = document.getElementById('retryBtn');
 const submitBtn = document.getElementById('submitBtn');
+const predictionResults = document.getElementById('predictionResults');
+const modelPrediction = document.getElementById('modelPrediction');
 const cooldownInfo = document.getElementById('cooldownInfo');
 const cooldownTimer = document.getElementById('cooldownTimer');
 
 async function loadUserProfile() {
   const token = localStorage.getItem('token');
+  if (!token) return;
   try {
     const res = await fetch(`${backendUrl}/api/user/profile`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -36,7 +35,7 @@ async function loadUserProfile() {
     userEmailEl.textContent = data.user.email;
     coinBalanceEl.textContent = data.user.coins;
   } catch (err) {
-    console.error('Profile fetch error:', err);
+    console.error('Profile load error:', err);
   }
 }
 
@@ -48,13 +47,14 @@ async function loadUploadHistory() {
     });
     const data = await res.json();
     historyListEl.innerHTML = '';
-    data.history.forEach(item => {
+    data.history.forEach(entry => {
       const div = document.createElement('div');
-      div.innerHTML = `<p><strong>${new Date(item.timestamp).toLocaleString()}</strong></p><img src="${item.imageUrl}" class="img-fluid rounded mb-2" width="200">`;
+      div.className = 'mb-2';
+      div.innerHTML = `<strong>${new Date(entry.timestamp).toLocaleString()}</strong><br><img src="${entry.imageUrl}" width="200" class="rounded mt-1">`;
       historyListEl.appendChild(div);
     });
   } catch (err) {
-    console.error('History fetch error:', err);
+    console.error('History error:', err);
   }
 }
 
@@ -63,7 +63,11 @@ function startCamera() {
     .then(stream => {
       currentStream = stream;
       video.srcObject = stream;
-      document.getElementById('camera-section').style.display = 'block';
+      cameraSection.style.display = 'block';
+      captureBtn.style.display = 'inline-block';
+      retryBtn.style.display = 'none';
+      submitBtn.style.display = 'none';
+      predictionResults.style.display = 'none';
     })
     .catch(err => {
       console.error('Camera error:', err);
@@ -74,16 +78,17 @@ function startCamera() {
 function stopCamera() {
   if (currentStream) {
     currentStream.getTracks().forEach(track => track.stop());
-    video.srcObject = null;
+    currentStream = null;
   }
+  video.srcObject = null;
 }
 
 function overlayTimestamp(ctx, width, height) {
   const timestamp = new Date().toLocaleString();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
   ctx.fillRect(10, height - 40, ctx.measureText(timestamp).width + 20, 30);
   ctx.fillStyle = '#fff';
-  ctx.font = '20px sans-serif';
+  ctx.font = '20px Poppins';
   ctx.fillText(timestamp, 20, height - 20);
 }
 
@@ -94,32 +99,39 @@ async function captureImage() {
   canvas.height = height;
   context.drawImage(video, 0, 0, width, height);
   overlayTimestamp(context, width, height);
-  imagePreview.src = canvas.toDataURL('image/png');
-  imagePreview.style.display = 'block';
-  await runVerification();
   captureBtn.style.display = 'none';
   retryBtn.style.display = 'inline-block';
   submitBtn.style.display = 'inline-block';
+  await runVerification();
 }
 
 async function runVerification() {
   const image = tf.browser.fromPixels(canvas);
   const prediction = await model.predict(image.expandDims(0));
-  const labelIndex = prediction.argMax(-1).dataSync()[0];
+  const classIdx = prediction.argMax(-1).dataSync()[0];
   const confidence = prediction.max().dataSync()[0];
-  const label = model.getClassLabels()[labelIndex];
-  modelPrediction.innerHTML = `Label: ${label} <br> Confidence: ${(confidence * 100).toFixed(2)}%`;
+  const label = model.getClassLabels()[classIdx];
+
+  modelPrediction.innerHTML = `<b>Label:</b> ${label}<br><b>Confidence:</b> ${(confidence * 100).toFixed(2)}%`;
   predictionResults.style.display = 'block';
+
+  if (!label.toLowerCase().includes('tree') || confidence < 0.85) {
+    submitBtn.disabled = true;
+    Swal.fire('AI Verification Failed', 'No tree detected. Please try again.', 'warning');
+  } else {
+    submitBtn.disabled = false;
+  }
 }
 
 function startCooldown() {
   let timeLeft = cooldownTime;
   cooldownInfo.style.display = 'block';
+
   cooldownInterval = setInterval(() => {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     cooldownTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    if (--timeLeft < 0) {
+    if (timeLeft-- <= 0) {
       clearInterval(cooldownInterval);
       cooldownInfo.style.display = 'none';
     }
@@ -141,34 +153,30 @@ function uploadImage() {
       if (!res.ok) throw new Error(data.message);
       Swal.fire('Success', 'Tree uploaded successfully!', 'success');
       stopCamera();
-      document.getElementById('camera-section').style.display = 'none';
-      loadUserProfile();
-      loadUploadHistory();
+      cameraSection.style.display = 'none';
       startCooldown();
+      await loadUserProfile();
+      await loadUploadHistory();
     } catch (err) {
-      Swal.fire('Upload Failed', err.message, 'error');
+      console.error('Upload error:', err);
+      Swal.fire('Error', err.message, 'error');
     }
   }, 'image/png');
 }
 
-async function initTeachableMachine() {
-  model = await tmImage.load(modelURL + 'model.json', modelURL + 'metadata.json');
-  console.log('✅ Model loaded');
-}
-
+// Event listeners
 uploadBtn.addEventListener('click', startCamera);
 captureBtn.addEventListener('click', captureImage);
 retryBtn.addEventListener('click', () => {
-  imagePreview.style.display = 'none';
-  captureBtn.style.display = 'inline-block';
-  retryBtn.style.display = 'none';
-  submitBtn.style.display = 'none';
-  predictionResults.style.display = 'none';
+  stopCamera();
+  startCamera();
 });
 submitBtn.addEventListener('click', uploadImage);
 
-window.addEventListener('DOMContentLoaded', async () => {
+async function init() {
   await loadUserProfile();
   await loadUploadHistory();
-  await initTeachableMachine();
-});
+  model = await tmImage.load(modelURL + 'model.json', modelURL + 'metadata.json');
+  console.log('✅ Teachable Machine loaded');
+}
+window.addEventListener('DOMContentLoaded', init);
