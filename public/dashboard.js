@@ -32,15 +32,13 @@ async function loadUploadHistory() {
 const data = await res.json();
 const history = data.history || [];
 
-if (!Array.isArray(history)) return;
-
-const list = document.getElementById("historyList");
-list.innerHTML = history.map(item => `
+document.getElementById("historyList").innerHTML = history.map(item => `
   <div class="mb-2">
     <img src="${item.imageUrl}" style="max-height:150px;border-radius:8px;"><br>
     <small>${new Date(item.timestamp).toLocaleString()}</small>
   </div>
 `).join("");
+
 
 }
 
