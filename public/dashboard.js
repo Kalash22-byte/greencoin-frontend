@@ -1,26 +1,27 @@
 'use strict';
 
+// Global Variables
 const token = localStorage.getItem('token');
 let model;
 let currentStream;
 let lastUploadTime = parseInt(localStorage.getItem('lastUploadTime')) || 0;
 let cooldownInterval;
 
+// Redirect if not authenticated
 if (!token) {
   window.location.href = 'login.html';
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[Init] Starting dashboard initialization...');
-
+  
   try {
-    // Load Teachable Machine model
-    const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
-    const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
-    model = await tmImage.load(modelURL, metadataURL);
-    console.log('[Init] AI model loaded:', model);
+    model = await tmImage.load(
+      'https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json',
+      'https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json'
+    );
+    console.log('[Init] AI model loaded:', model.modelName || 'CustomMobileNet');
 
-    // Load user data
     const [profile, history] = await Promise.all([
       loadUserProfile(),
       loadHistory()
@@ -43,18 +44,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+// Fetch user profile
 async function loadUserProfile() {
   try {
-    const response = await fetch('https://greencoin-backend.onrender.com/api/user/profile', {
+    const res = await fetch('https://greencoin-backend.onrender.com/api/user/profile', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
 
-    if (!response.ok) throw new Error((await response.json()).message || `HTTP ${response.status}`);
-
-    const data = await response.json();
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
     return data.user;
   } catch (error) {
     console.error('[Profile Error]', error);
@@ -62,33 +63,30 @@ async function loadUserProfile() {
   }
 }
 
+// Fetch history
 async function loadHistory() {
   try {
-    const response = await fetch('https://greencoin-backend.onrender.com/api/tree/history', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+    const res = await fetch('https://greencoin-backend.onrender.com/api/tree/history', {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-    return await response.json();
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data;
   } catch (error) {
     console.error('[History Error]', error);
     return [];
   }
 }
 
+// Update profile UI
 function updateProfileUI(data) {
-  try {
-    document.getElementById('userName').textContent = data.name || 'User';
-    document.getElementById('userEmail').textContent = data.email || 'No email';
-    document.getElementById('coinBalance').textContent = data.coins ?? '0';
-  } catch (error) {
-    console.error('[UI Error] Profile update failed:', error);
-  }
+  document.getElementById('userName').textContent = data.name || 'User';
+  document.getElementById('userEmail').textContent = data.email || 'Email';
+  document.getElementById('coinBalance').textContent = data.coins ?? '0';
 }
 
+// Update history UI
 function updateHistoryUI(items) {
   const container = document.getElementById('historyList');
   if (!container) return;
@@ -106,11 +104,12 @@ function updateHistoryUI(items) {
       </div>
     `).join('') : '<div class="text-center py-3 text-muted">No history yet</div>';
   } catch (error) {
-    container.innerHTML = '<div class="alert alert-danger">Failed to load history</div>';
     console.error('[UI Error] History update failed:', error);
+    container.innerHTML = '<div class="alert alert-danger">Failed to load history</div>';
   }
 }
 
+// Cooldown Logic
 function checkCooldown() {
   const now = Date.now();
   const cooldownMs = 5 * 60 * 1000;
@@ -125,7 +124,6 @@ function checkCooldown() {
 
 function startCooldownTimer(ms) {
   clearInterval(cooldownInterval);
-
   const timerElement = document.getElementById('cooldownTimer');
   if (!timerElement) return;
 
@@ -148,6 +146,7 @@ function startCooldownTimer(ms) {
   cooldownInterval = setInterval(update, 1000);
 }
 
+// Camera Setup
 async function startCamera() {
   try {
     if (currentStream) {
@@ -158,10 +157,11 @@ async function startCamera() {
     document.getElementById('video').srcObject = currentStream;
   } catch (error) {
     console.error('[Camera Error]', error);
-    Swal.fire({ title: 'Camera Error', text: 'Please enable camera permissions', icon: 'error' });
+    Swal.fire({ title: 'Camera Error', text: 'Please enable camera access', icon: 'error' });
   }
 }
 
+// Button Event Handlers
 function setupEventListeners() {
   document.getElementById('uploadBtn').addEventListener('click', () => {
     document.getElementById('camera-section').style.display = 'block';
@@ -171,65 +171,62 @@ function setupEventListeners() {
   document.getElementById('captureBtn').addEventListener('click', captureAndUpload);
 }
 
+// AI + Upload
 async function captureAndUpload() {
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const predictionDiv = document.getElementById('modelPrediction');
 
-  // Set canvas dimensions and draw video frame
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Overlay timestamp
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
   ctx.font = '16px Arial';
   ctx.fillText(new Date().toLocaleString(), 10, canvas.height - 10);
 
-  // Show loading spinner
   predictionDiv.innerHTML = '<div class="spinner-border text-success"></div> Verifying...';
 
   try {
     const predictions = await model.predict(canvas);
-
-    // Debug: show all class predictions
     console.log('[AI] Prediction results:', predictions);
 
-    // Display all predictions to the user (optional)
-    predictionDiv.innerHTML = predictions.map(p => 
-      `<div>${p.className}: ${(p.probability * 100).toFixed(1)}%</div>`
-    ).join('');
+    predictionDiv.innerHTML = predictions.map(p => `
+      <div>${p.className}: ${(p.probability * 100).toFixed(1)}%</div>
+    `).join('');
 
-    // Check if any class contains "tree" and has high probability
+    // ✅ Strict check: only accept if className === 'tree' && prob > 0.7
     const isTree = predictions.some(p =>
-      p.className.toLowerCase().includes('tree') && p.probability > 0.7
+      p.className.trim().toLowerCase() === 'tree' && p.probability > 0.7
     );
 
     if (!isTree) {
       predictionDiv.innerHTML += `
         <div class="alert alert-danger mt-2 animate__animated animate__shakeX">
-          <i class="bi bi-exclamation-triangle"></i> This doesn't appear to be a tree!
+          <i class="bi bi-exclamation-triangle"></i> Tree not detected — upload blocked
         </div>
       `;
+      console.warn('[AI] Tree not detected — Upload blocked');
       return;
     }
 
-    // Proceed to upload if it's a tree
     await uploadImage(canvas);
   } catch (error) {
-    console.error('[AI Error]', error);
+    console.error('[Prediction Error]', error);
     predictionDiv.innerHTML = `
       <div class="alert alert-danger animate__animated animate__shakeX">
-        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'Model prediction failed'}
+        <i class="bi bi-exclamation-triangle"></i> ${error.message || 'Prediction failed'}
       </div>
     `;
   }
 }
+
+// Upload Tree Photo
 async function uploadImage(canvas) {
   const swal = Swal.fire({
     title: 'Uploading...',
-    html: 'Please wait while we process your tree',
+    html: 'Processing your tree image...',
     allowOutsideClick: false,
     didOpen: () => Swal.showLoading()
   });
@@ -242,9 +239,7 @@ async function uploadImage(canvas) {
 
     const response = await fetch('https://greencoin-backend.onrender.com/api/tree/upload', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
       body: formData
     });
 
@@ -254,13 +249,11 @@ async function uploadImage(canvas) {
     localStorage.setItem('lastUploadTime', lastUploadTime.toString());
 
     await swal.close();
-    Swal.fire({
-      title: 'Success!',
-      text: 'Tree uploaded and verified',
-      icon: 'success'
-    }).then(() => window.location.reload());
+    Swal.fire({ title: 'Success!', text: 'Tree uploaded and verified ✅', icon: 'success' })
+      .then(() => window.location.reload());
   } catch (error) {
     await swal.close();
-    throw error;
+    console.error('[Upload Error]', error);
+    Swal.fire({ title: 'Upload Failed', text: error.message || 'Unknown error', icon: 'error' });
   }
 }
