@@ -1,182 +1,169 @@
-const backendUrl = 'https://greencoin-backend.onrender.com';
-const modelURL = 'https://teachablemachine.withgoogle.com/models/cfn939LYh/';
+const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
+const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
+let model, webcamStream;
 
-let model, currentStream;
-let cooldownTime = 5 * 60;
-let cooldownInterval;
+window.onload = () => {
+  loadUserProfile();
+  loadUploadHistory();
+  loadModel();
+  updateCooldownUI();
 
-const userNameEl = document.getElementById('userName');
-const userEmailEl = document.getElementById('userEmail');
-const coinBalanceEl = document.getElementById('coinBalance');
-const historyListEl = document.getElementById('historyList');
-
-const uploadBtn = document.getElementById('uploadBtn');
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
-const cameraSection = document.getElementById('camera-section');
-const captureBtn = document.getElementById('captureBtn');
-const retryBtn = document.getElementById('retryBtn');
-const submitBtn = document.getElementById('submitBtn');
-const predictionResults = document.getElementById('predictionResults');
-const modelPrediction = document.getElementById('modelPrediction');
-const cooldownInfo = document.getElementById('cooldownInfo');
-const cooldownTimer = document.getElementById('cooldownTimer');
+  document.getElementById("uploadBtn").addEventListener("click", openCamera);
+  document.getElementById("captureBtn").addEventListener("click", capturePhoto);
+  document.getElementById("retryBtn").addEventListener("click", resetCamera);
+  document.getElementById("submitBtn").addEventListener("click", uploadImage);
+};
 
 async function loadUserProfile() {
-  const token = localStorage.getItem('token');
-  if (!token) return;
-  try {
-    const res = await fetch(`${backendUrl}/api/user/profile`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    userNameEl.textContent = data.user.name;
-    userEmailEl.textContent = data.user.email;
-    coinBalanceEl.textContent = data.user.coins;
-  } catch (err) {
-    console.error('Profile load error:', err);
-  }
+  const res = await fetch("https://greencoin-backend.onrender.com/api/user/profile", {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
+  if (!res.ok) return Swal.fire("Error", "Failed to load user data", "error");
+  const { user } = await res.json();
+  document.getElementById("userName").innerText = user.name;
+  document.getElementById("userEmail").innerText = user.email;
+  document.getElementById("coinBalance").innerText = user.coins;
 }
 
 async function loadUploadHistory() {
-  const token = localStorage.getItem('token');
-  try {
-    const res = await fetch(`${backendUrl}/api/tree/history`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    historyListEl.innerHTML = '';
-    data.history.forEach(entry => {
-      const div = document.createElement('div');
-      div.className = 'mb-2';
-      div.innerHTML = `<strong>${new Date(entry.timestamp).toLocaleString()}</strong><br><img src="${entry.imageUrl}" width="200" class="rounded mt-1">`;
-      historyListEl.appendChild(div);
-    });
-  } catch (err) {
-    console.error('History error:', err);
-  }
+  const res = await fetch("https://greencoin-backend.onrender.com/api/tree/history", {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
+  if (!res.ok) return;
+  const history = await res.json();
+  const list = document.getElementById("historyList");
+  list.innerHTML = history.map(item => `
+    <div class="mb-2">
+      <img src="${item.imageUrl}" style="max-height:150px;border-radius:8px;"><br>
+      <small>${new Date(item.timestamp).toLocaleString()}</small>
+    </div>
+  `).join("");
 }
 
-function startCamera() {
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-      currentStream = stream;
-      video.srcObject = stream;
-      cameraSection.style.display = 'block';
-      captureBtn.style.display = 'inline-block';
-      retryBtn.style.display = 'none';
-      submitBtn.style.display = 'none';
-      predictionResults.style.display = 'none';
-    })
-    .catch(err => {
-      console.error('Camera error:', err);
-      Swal.fire('Camera Error', err.message, 'error');
-    });
+async function loadModel() {
+  model = await tmImage.load(modelURL, metadataURL);
 }
 
-function stopCamera() {
-  if (currentStream) {
-    currentStream.getTracks().forEach(track => track.stop());
-    currentStream = null;
-  }
-  video.srcObject = null;
+function openCamera() {
+  if (isCooldownActive()) return;
+  navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+    webcamStream = stream;
+    const video = document.getElementById("video");
+    video.srcObject = stream;
+    document.getElementById("camera-section").style.display = "block";
+    document.getElementById("captureBtn").style.display = "inline-block";
+    document.getElementById("retryBtn").style.display = "none";
+    document.getElementById("submitBtn").style.display = "none";
+    document.getElementById("predictionResults").style.display = "none";
+  }).catch(() => Swal.fire("Error", "Camera access denied", "error"));
 }
 
-function overlayTimestamp(ctx, width, height) {
+function capturePhoto() {
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Draw timestamp
   const timestamp = new Date().toLocaleString();
-  ctx.fillStyle = 'rgba(0,0,0,0.6)';
-  ctx.fillRect(10, height - 40, ctx.measureText(timestamp).width + 20, 30);
-  ctx.fillStyle = '#fff';
-  ctx.font = '20px Poppins';
-  ctx.fillText(timestamp, 20, height - 20);
+  ctx.fillStyle = "rgba(0,0,0,0.7)";
+  ctx.fillRect(10, canvas.height - 40, 300, 30);
+  ctx.fillStyle = "#fff";
+  ctx.font = "18px Poppins";
+  ctx.fillText(timestamp, 15, canvas.height - 20);
+
+  video.style.display = "none";
+  canvas.style.display = "block";
+  document.getElementById("captureBtn").style.display = "none";
+  document.getElementById("retryBtn").style.display = "inline-block";
+
+  document.getElementById("predictionResults").style.display = "block";
+  document.getElementById("modelPrediction").innerText = "Processing...";
+  predictImage(canvas);
 }
 
-async function captureImage() {
-  const width = video.videoWidth;
-  const height = video.videoHeight;
-  canvas.width = width;
-  canvas.height = height;
-  context.drawImage(video, 0, 0, width, height);
-  overlayTimestamp(context, width, height);
-  captureBtn.style.display = 'none';
-  retryBtn.style.display = 'inline-block';
-  submitBtn.style.display = 'inline-block';
-  await runVerification();
-}
+async function predictImage(image) {
+  const predictions = await model.predict(image);
+  const top = predictions.sort((a, b) => b.probability - a.probability)[0];
+  document.getElementById("modelPrediction").innerText = `${top.className}: ${(top.probability * 100).toFixed(2)}%`;
 
-async function runVerification() {
-  const image = tf.browser.fromPixels(canvas);
-  const prediction = await model.predict(image.expandDims(0));
-  const classIdx = prediction.argMax(-1).dataSync()[0];
-  const confidence = prediction.max().dataSync()[0];
-  const label = model.getClassLabels()[classIdx];
-
-  modelPrediction.innerHTML = `<b>Label:</b> ${label}<br><b>Confidence:</b> ${(confidence * 100).toFixed(2)}%`;
-  predictionResults.style.display = 'block';
-
-  if (!label.toLowerCase().includes('tree') || confidence < 0.85) {
-    submitBtn.disabled = true;
-    Swal.fire('AI Verification Failed', 'No tree detected. Please try again.', 'warning');
+  if (top.className.toLowerCase().includes("tree") && top.probability > 0.85) {
+    document.getElementById("submitBtn").style.display = "inline-block";
   } else {
-    submitBtn.disabled = false;
+    Swal.fire("Try Again", "Tree not detected confidently.", "warning");
   }
 }
 
-function startCooldown() {
-  let timeLeft = cooldownTime;
-  cooldownInfo.style.display = 'block';
-
-  cooldownInterval = setInterval(() => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    cooldownTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    if (timeLeft-- <= 0) {
-      clearInterval(cooldownInterval);
-      cooldownInfo.style.display = 'none';
-    }
-  }, 1000);
+function resetCamera() {
+  document.getElementById("canvas").style.display = "none";
+  document.getElementById("video").style.display = "block";
+  document.getElementById("submitBtn").style.display = "none";
+  document.getElementById("captureBtn").style.display = "inline-block";
+  document.getElementById("retryBtn").style.display = "none";
+  document.getElementById("predictionResults").style.display = "none";
 }
 
 function uploadImage() {
-  const token = localStorage.getItem('token');
+  const canvas = document.getElementById("canvas");
   canvas.toBlob(async blob => {
     const formData = new FormData();
-    formData.append('image', blob, 'tree.png');
-    try {
-      const res = await fetch(`${backendUrl}/api/tree/upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      Swal.fire('Success', 'Tree uploaded successfully!', 'success');
-      stopCamera();
-      cameraSection.style.display = 'none';
-      startCooldown();
-      await loadUserProfile();
-      await loadUploadHistory();
-    } catch (err) {
-      console.error('Upload error:', err);
-      Swal.fire('Error', err.message, 'error');
-    }
-  }, 'image/png');
+    formData.append("image", blob, "tree.jpg");
+
+    const res = await fetch("https://greencoin-backend.onrender.com/api/tree/upload", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      body: formData
+    });
+
+    if (!res.ok) return Swal.fire("Error", "Upload failed", "error");
+    Swal.fire("Success", "Tree uploaded!", "success");
+    stopCamera();
+    document.getElementById("camera-section").style.display = "none";
+    loadUploadHistory();
+    startCooldown();
+  });
 }
 
-// Event listeners
-uploadBtn.addEventListener('click', startCamera);
-captureBtn.addEventListener('click', captureImage);
-retryBtn.addEventListener('click', () => {
-  stopCamera();
-  startCamera();
-});
-submitBtn.addEventListener('click', uploadImage);
-
-async function init() {
-  await loadUserProfile();
-  await loadUploadHistory();
-  model = await tmImage.load(modelURL + 'model.json', modelURL + 'metadata.json');
-  console.log('✅ Teachable Machine loaded');
+function stopCamera() {
+  if (webcamStream) {
+    webcamStream.getTracks().forEach(track => track.stop());
+  }
 }
-window.addEventListener('DOMContentLoaded', init);
+
+function startCooldown(minutes = 5) {
+  const until = Date.now() + minutes * 60 * 1000;
+  localStorage.setItem("cooldownUntil", until);
+  updateCooldownUI();
+  const interval = setInterval(() => {
+    if (!updateCooldownUI()) clearInterval(interval);
+  }, 1000);
+}
+
+function updateCooldownUI() {
+  const until = parseInt(localStorage.getItem("cooldownUntil"), 10);
+  const now = Date.now();
+  if (until && now < until) {
+    const rem = until - now;
+    const min = Math.floor(rem / 60000);
+    const sec = Math.floor((rem % 60000) / 1000);
+    document.getElementById("cooldownInfo").style.display = "block";
+    document.getElementById("cooldownTimer").innerText = `${min}:${sec.toString().padStart(2, "0")}`;
+    document.getElementById("uploadBtn").disabled = true;
+    return true;
+  } else {
+    document.getElementById("cooldownInfo").style.display = "none";
+    document.getElementById("uploadBtn").disabled = false;
+    return false;
+  }
+}
+
+function isCooldownActive() {
+  const until = parseInt(localStorage.getItem("cooldownUntil"), 10);
+  if (Date.now() < until) {
+    Swal.fire("Wait", "You must wait 5 minutes between uploads.", "info");
+    return true;
+  }
+  return false;
+}
