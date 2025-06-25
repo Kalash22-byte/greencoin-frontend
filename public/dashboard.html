@@ -509,46 +509,41 @@
         </a>
       </div>
     </div>
+<!-- Camera Section (Updated) -->
+<div id="camera-section" class="animate__animated animate__fadeIn" style="display: none;">
+  <h5 class="mb-3 text-center"><i class="bi bi-camera-fill me-2"></i> Tree Verification</h5>
+  <p class="text-muted text-center mb-3">Capture a clear photo of your planted tree</p>
 
-    <!-- Camera Section -->
-    <div id="camera-section" class="animate__animated animate__fadeIn">
-      <h5 class="mb-3 text-center"><i class="bi bi-camera-fill me-2"></i> Tree Verification</h5>
-      <p class="text-muted text-center mb-3">Capture a clear photo of your planted tree for verification</p>
-      
-      <div class="position-relative">
-        <video id="video" autoplay playsinline></video>
-        <canvas id="canvas" class="d-none"></canvas>
-      </div>
+  <!-- Live Camera Feed -->
+  <div id="live-camera" class="text-center">
+    <video id="video" autoplay playsinline class="w-100 rounded border border-success" style="max-height: 500px;"></video>
+    <button id="captureBtn" class="btn btn-success mt-3">
+      <i class="bi bi-camera-fill me-1"></i> Capture
+    </button>
+  </div>
 
-      <div class="camera-controls">
-        <button id="switchCameraBtn" class="btn btn-outline-secondary">
-          <i class="bi bi-camera-reverse me-1"></i> Switch Camera
-        </button>
-        <button id="captureBtn" class="btn btn-success px-4">
-          <i class="bi bi-camera-fill me-1"></i> Capture
-        </button>
-      </div>
-
-      <!-- Prediction Results -->
-      <div id="predictionResults">
-        <h6 class="mb-3">AI Verification Results</h6>
-        <div id="modelPrediction" class="mb-3">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="prediction-badge tree-detected">
-              <i class="bi bi-tree-fill me-1"></i> Tree Detected
-            </span>
-            <span class="fw-bold">92%</span>
-          </div>
-          <div class="confidence-meter">
-            <div class="confidence-level" style="width: 92%"></div>
-          </div>
-        </div>
-        <button id="submitVerification" class="btn btn-success w-100" disabled>
-          <i class="bi bi-check-circle-fill me-1"></i> Submit Verification
-        </button>
-      </div>
+  <!-- Captured Image Preview -->
+  <div id="image-preview" class="text-center" style="display: none;">
+    <canvas id="canvas" class="w-100 rounded border border-success mb-3" style="max-height: 500px;"></canvas>
+    <div class="d-flex justify-content-center gap-3">
+      <button id="retryBtn" class="btn btn-outline-danger">
+        <i class="bi bi-arrow-counterclockwise"></i> Retry
+      </button>
+      <button id="okBtn" class="btn btn-success">
+        <i class="bi bi-check-circle"></i> OK
+      </button>
     </div>
+  </div>
 
+  <!-- Prediction Results -->
+  <div id="predictionResults" class="mt-4 text-center" style="display: none;">
+    <h6 class="mb-3">AI Verification Results</h6>
+    <div id="modelPrediction"></div>
+    <button id="submitVerification" class="btn btn-success mt-3" disabled>
+      <i class="bi bi-upload me-1"></i> Submit Verification
+    </button>
+  </div>
+</div>
     <!-- History Section -->
     <div class="history-section animate__animated animate__fadeInUp">
       <div class="d-flex justify-content-between align-items-center mb-4">
