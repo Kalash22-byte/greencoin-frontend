@@ -1,4 +1,3 @@
-// ✅ Final dashboard.js for GreenCoin
 const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
 const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
 let model, webcamStream;
@@ -17,11 +16,10 @@ window.onload = () => {
   document.getElementById("switchCameraBtn").addEventListener("click", switchCamera);
 };
 
+// ====================== AUTH & USER DATA ======================
 function checkAuth() {
   const token = localStorage.getItem("token");
-  if (!token) {
-    window.location.href = "login.html";
-  }
+  if (!token) window.location.href = "login.html";
 }
 
 async function loadUserProfile() {
@@ -34,7 +32,7 @@ async function loadUserProfile() {
     document.getElementById("userEmail").innerText = user.email;
     document.getElementById("coinBalance").innerText = user.coins;
   } catch (err) {
-    Swal.fire("Error", "Failed to load user profile", "error");
+    Swal.fire("Error", "Failed to load profile", "error");
   }
 }
 
@@ -52,27 +50,31 @@ async function loadUploadHistory() {
       </div>
     `).join("");
   } catch {
-    Swal.fire("Error", "Could not load upload history", "error");
+    Swal.fire("Error", "Failed to load history", "error");
   }
 }
 
+// ====================== AI MODEL ======================
 async function loadModel() {
   model = await tmImage.load(modelURL, metadataURL);
 }
 
+// ====================== CAMERA CONTROLS ======================
 function openCamera() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } }).then(stream => {
-    webcamStream = stream;
-    const video = document.getElementById("video");
-    video.srcObject = stream;
-    video.style.display = "block";
-    document.getElementById("canvas").style.display = "none";
-    document.getElementById("camera-section").style.display = "block";
-    document.getElementById("captureBtn").style.display = "inline-block";
-    document.getElementById("retryBtn").style.display = "none";
-    document.getElementById("submitBtn").style.display = "none";
-    document.getElementById("predictionResults").style.display = "none";
-  }).catch(() => Swal.fire("Error", "Camera access denied", "error"));
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } })
+    .then(stream => {
+      webcamStream = stream;
+      const video = document.getElementById("video");
+      video.srcObject = stream;
+      video.style.display = "block";
+      document.getElementById("canvas").style.display = "none";
+      document.getElementById("camera-section").style.display = "block";
+      document.getElementById("captureBtn").style.display = "inline-block";
+      document.getElementById("retryBtn").style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      document.getElementById("predictionResults").style.display = "none";
+    })
+    .catch(() => Swal.fire("Error", "Camera access denied", "error"));
 }
 
 function switchCamera() {
@@ -89,6 +91,7 @@ function capturePhoto() {
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+  // Add timestamp
   const timestamp = new Date().toLocaleString();
   ctx.fillStyle = "rgba(0,0,0,0.7)";
   ctx.fillRect(10, canvas.height - 40, 300, 30);
@@ -96,41 +99,61 @@ function capturePhoto() {
   ctx.font = "18px Poppins";
   ctx.fillText(timestamp, 15, canvas.height - 20);
 
+  // Update UI
   video.style.display = "none";
   canvas.style.display = "block";
   document.getElementById("captureBtn").style.display = "none";
   document.getElementById("retryBtn").style.display = "inline-block";
   document.getElementById("predictionResults").style.display = "block";
-  document.getElementById("modelPrediction").innerText = "Processing...";
+  document.getElementById("modelPrediction").innerText = "Analyzing...";
 
   predictImage(canvas);
 }
 
+// ====================== TREE DETECTION LOGIC ======================
 async function predictImage(image) {
-  const predictions = await model.predict(image);
-  const top = predictions.sort((a, b) => b.probability - a.probability)[0];
-  document.getElementById("modelPrediction").innerText = `${top.className}: ${(top.probability * 100).toFixed(2)}%`;
+  try {
+    const predictions = await model.predict(image);
+    const topPrediction = predictions.sort((a, b) => b.probability - a.probability)[0];
+    const isTree = topPrediction.className.toLowerCase().includes("tree");
+    const highConfidence = topPrediction.probability > 0.85;
 
-  if (top.className.toLowerCase().includes("tree") && top.probability > 0.85) {
-    document.getElementById("submitBtn").style.display = "inline-block";
-  } else {
-    document.getElementById("submitBtn").style.display = "none";
-    Swal.fire("Not a Tree", "AI didn't detect a tree confidently.", "warning");
+    // Display prediction
+    document.getElementById("modelPrediction").innerText = 
+      `${topPrediction.className}: ${(topPrediction.probability * 100).toFixed(2)}%`;
+
+    // Only allow upload if tree + high confidence
+    if (isTree && highConfidence) {
+      document.getElementById("submitBtn").style.display = "inline-block";
+      Swal.fire({
+        title: "✅ Tree Detected!",
+        text: "You can now upload this image.",
+        icon: "success",
+        timer: 2000,
+      });
+    } else {
+      document.getElementById("submitBtn").style.display = "none";
+      Swal.fire({
+        title: "❌ Not a Tree",
+        text: "AI did not detect a tree with high confidence.",
+        icon: "error",
+      });
+    }
+  } catch (err) {
+    Swal.fire("Error", "AI analysis failed", "error");
   }
 }
 
-function resetCamera() {
-  document.getElementById("canvas").style.display = "none";
-  document.getElementById("video").style.display = "block";
-  document.getElementById("submitBtn").style.display = "none";
-  document.getElementById("captureBtn").style.display = "inline-block";
-  document.getElementById("retryBtn").style.display = "none";
-  document.getElementById("predictionResults").style.display = "none";
-}
-
+// ====================== UPLOAD (ONLY IF TREE DETECTED) ======================
 function uploadImage() {
+  const submitBtn = document.getElementById("submitBtn");
+  if (submitBtn.style.display === "none") {
+    Swal.fire("Error", "Cannot upload: No tree detected.", "error");
+    return;
+  }
+
   const canvas = document.getElementById("canvas");
-  canvas.toBlob(async blob => {
+  canvas.toBlob(async (blob) => {
     const formData = new FormData();
     formData.append("photo", blob, "tree.jpg");
 
@@ -138,27 +161,37 @@ function uploadImage() {
       const res = await fetch("https://greencoin-backend.onrender.com/api/tree/upload", {
         method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        body: formData
+        body: formData,
       });
 
       if (res.status === 429) {
         const data = await res.json();
-        return Swal.fire("Cooldown Active", data.error || "Try again later", "info");
+        return Swal.fire("Cooldown", data.error || "Try again later.", "info");
       }
 
-      if (!res.ok) return Swal.fire("Error", "Upload failed", "error");
+      if (!res.ok) throw new Error("Upload failed.");
 
+      // Success
       const data = await res.json();
-      Swal.fire("Uploaded!", "Tree detected and uploaded successfully", "success");
+      Swal.fire("Success!", "Tree uploaded! +" + data.coinsAwarded + " coins", "success");
       stopCamera();
       document.getElementById("camera-section").style.display = "none";
       loadUserProfile();
       loadUploadHistory();
     } catch (err) {
-      console.error("Upload error", err);
       Swal.fire("Error", "Upload failed", "error");
     }
   });
+}
+
+// ====================== UTILITY FUNCTIONS ======================
+function resetCamera() {
+  document.getElementById("canvas").style.display = "none";
+  document.getElementById("video").style.display = "block";
+  document.getElementById("submitBtn").style.display = "none";
+  document.getElementById("captureBtn").style.display = "inline-block";
+  document.getElementById("retryBtn").style.display = "none";
+  document.getElementById("predictionResults").style.display = "none";
 }
 
 function stopCamera() {
