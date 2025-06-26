@@ -1,14 +1,18 @@
+// ====================== CONFIGURATION ======================
 const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
 const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
 let model, webcamStream;
 let currentFacingMode = "environment";
+let lastUploadTime = null; // Tracks last successful upload
 
+// ====================== INITIALIZATION ======================
 window.onload = () => {
   checkAuth();
   loadUserProfile();
   loadUploadHistory();
   loadModel();
 
+  // Event Listeners
   document.getElementById("uploadBtn").addEventListener("click", openCamera);
   document.getElementById("captureBtn").addEventListener("click", capturePhoto);
   document.getElementById("retryBtn").addEventListener("click", resetCamera);
@@ -144,12 +148,18 @@ async function predictImage(image) {
   }
 }
 
-// ====================== UPLOAD (ONLY IF TREE DETECTED) ======================
+// ====================== UPLOAD WITH COOLDOWN ======================
 function uploadImage() {
   const submitBtn = document.getElementById("submitBtn");
   if (submitBtn.style.display === "none") {
     Swal.fire("Error", "Cannot upload: No tree detected.", "error");
     return;
+  }
+
+  // 5-minute cooldown check
+  if (lastUploadTime && (Date.now() - lastUploadTime < 5 * 60 * 1000)) {
+    const remainingMinutes = Math.ceil((5 * 60 * 1000 - (Date.now() - lastUploadTime)) / 1000 / 60);
+    return Swal.fire("Cooldown", `Please wait ${remainingMinutes} minute(s) before uploading again.`, "info");
   }
 
   const canvas = document.getElementById("canvas");
@@ -171,9 +181,10 @@ function uploadImage() {
 
       if (!res.ok) throw new Error("Upload failed.");
 
-      // Success
+      // On success:
+      lastUploadTime = Date.now(); // Update cooldown timer
       const data = await res.json();
-      Swal.fire("Success!", "Tree uploaded! +" + data.coinsAwarded + " coins", "success");
+      Swal.fire("Success!", `Tree uploaded! +${data.coinsAwarded || 0} coins`, "success");
       stopCamera();
       document.getElementById("camera-section").style.display = "none";
       loadUserProfile();
