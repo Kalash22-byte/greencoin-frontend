@@ -1,16 +1,13 @@
 const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model.json";
 const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
-
-let model, webcamStream;
+let model, webcamStream, currentUserId = null;
 let currentFacingMode = "environment";
-let currentUserId = null;
+let isTreeDetected = false;
 
-// ✅ Init
-window.onload = async () => {
-  await loadUserProfile();
-  await loadUploadHistory();
-  await loadModel();
-  updateCooldownUI();
+window.onload = () => {
+  loadUserProfile();
+  loadUploadHistory();
+  loadModel();
 
   document.getElementById("uploadBtn").addEventListener("click", openCamera);
   document.getElementById("captureBtn").addEventListener("click", capturePhoto);
@@ -19,24 +16,29 @@ window.onload = async () => {
   document.getElementById("switchCameraBtn").addEventListener("click", switchCamera);
 };
 
-// ✅ Load Profile and Save User ID
 async function loadUserProfile() {
-  const res = await fetch("https://greencoin-backend.onrender.com/api/user/profile", {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
-  if (!res.ok) return Swal.fire("Error", "Failed to load user data", "error");
-  const { user } = await res.json();
-  currentUserId = user.id;
-  document.getElementById("userName").innerText = user.name;
-  document.getElementById("userEmail").innerText = user.email;
-  document.getElementById("coinBalance").innerText = user.coins;
+  try {
+    const res = await fetch("https://greencoin-backend.onrender.com/api/user/profile", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+
+    const { user } = await res.json();
+    currentUserId = user.id;
+    document.getElementById("userName").innerText = user.name;
+    document.getElementById("userEmail").innerText = user.email;
+    document.getElementById("coinBalance").innerText = user.coins;
+
+    updateCooldownUI();
+  } catch {
+    Swal.fire("Error", "Failed to load user profile", "error");
+  }
 }
 
-// ✅ Load Upload History
 async function loadUploadHistory() {
   const res = await fetch("https://greencoin-backend.onrender.com/api/tree/history", {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
+
   const data = await res.json();
   const history = data.history || [];
 
@@ -48,21 +50,16 @@ async function loadUploadHistory() {
   `).join("");
 }
 
-// ✅ Load AI Model
 async function loadModel() {
   model = await tmImage.load(modelURL, metadataURL);
 }
 
-// ✅ Open Camera
 function openCamera() {
   if (isCooldownActive()) return;
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: currentFacingMode }
-  }).then(stream => {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } }).then(stream => {
     webcamStream = stream;
-    const video = document.getElementById("video");
-    video.srcObject = stream;
-    video.style.display = "block";
+    document.getElementById("video").srcObject = stream;
+    document.getElementById("video").style.display = "block";
     document.getElementById("canvas").style.display = "none";
     document.getElementById("camera-section").style.display = "block";
     document.getElementById("captureBtn").style.display = "inline-block";
@@ -72,14 +69,14 @@ function openCamera() {
   }).catch(() => Swal.fire("Error", "Camera access denied", "error"));
 }
 
-// ✅ Switch Front/Back Camera
 function switchCamera() {
-  if (webcamStream) webcamStream.getTracks().forEach(track => track.stop());
+  if (webcamStream) {
+    webcamStream.getTracks().forEach(track => track.stop());
+  }
   currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
   openCamera();
 }
 
-// ✅ Capture and Overlay Timestamp
 function capturePhoto() {
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
@@ -99,29 +96,28 @@ function capturePhoto() {
   canvas.style.display = "block";
   document.getElementById("captureBtn").style.display = "none";
   document.getElementById("retryBtn").style.display = "inline-block";
-
+  document.getElementById("submitBtn").style.display = "none";
   document.getElementById("predictionResults").style.display = "block";
   document.getElementById("modelPrediction").innerText = "Processing...";
+
   predictImage(canvas);
 }
 
-// ✅ AI Prediction Check
 async function predictImage(image) {
   const predictions = await model.predict(image);
   const top = predictions.sort((a, b) => b.probability - a.probability)[0];
-
-  const resultText = `${top.className}: ${(top.probability * 100).toFixed(2)}%`;
-  document.getElementById("modelPrediction").innerText = resultText;
+  document.getElementById("modelPrediction").innerText = `${top.className}: ${(top.probability * 100).toFixed(2)}%`;
 
   if (top.className.toLowerCase().includes("tree") && top.probability > 0.85) {
+    isTreeDetected = true;
     document.getElementById("submitBtn").style.display = "inline-block";
   } else {
+    isTreeDetected = false;
     document.getElementById("submitBtn").style.display = "none";
-    Swal.fire("Try Again", "No clear tree detected. Please retake the photo.", "warning");
+    Swal.fire("Try Again", "Tree not detected confidently.", "warning");
   }
 }
 
-// ✅ Reset Camera View
 function resetCamera() {
   document.getElementById("canvas").style.display = "none";
   document.getElementById("video").style.display = "block";
@@ -131,12 +127,15 @@ function resetCamera() {
   document.getElementById("predictionResults").style.display = "none";
 }
 
-// ✅ Upload Photo (only if AI passed)
 function uploadImage() {
+  if (!isTreeDetected) {
+    return Swal.fire("Blocked", "You cannot upload. No tree detected.", "error");
+  }
+
   const canvas = document.getElementById("canvas");
   canvas.toBlob(async blob => {
     const formData = new FormData();
-    formData.append("photo", blob, `tree-${Date.now()}.png`);
+    formData.append("photo", blob, "tree.jpg");
 
     const res = await fetch("https://greencoin-backend.onrender.com/api/tree/upload", {
       method: "POST",
@@ -146,34 +145,34 @@ function uploadImage() {
 
     if (!res.ok) return Swal.fire("Error", "Upload failed", "error");
 
-    Swal.fire("Success", "Tree uploaded successfully!", "success");
+    Swal.fire("Success", "Tree uploaded!", "success");
     stopCamera();
     document.getElementById("camera-section").style.display = "none";
     loadUploadHistory();
-    startCooldown();
+    startCooldown(); // Apply cooldown only for this user
   });
 }
 
-// ✅ Stop Webcam
 function stopCamera() {
   if (webcamStream) {
     webcamStream.getTracks().forEach(track => track.stop());
   }
 }
 
-// ✅ Cooldown (Per User)
 function startCooldown(minutes = 5) {
   const until = Date.now() + minutes * 60 * 1000;
-  localStorage.setItem(`cooldownUntil-${currentUserId}`, until);
+  localStorage.setItem(`cooldownUntil_${currentUserId}`, until);
   updateCooldownUI();
+
   const interval = setInterval(() => {
     if (!updateCooldownUI()) clearInterval(interval);
   }, 1000);
 }
 
 function updateCooldownUI() {
-  const until = parseInt(localStorage.getItem(`cooldownUntil-${currentUserId}`), 10);
+  const until = parseInt(localStorage.getItem(`cooldownUntil_${currentUserId}`), 10);
   const now = Date.now();
+
   if (until && now < until) {
     const rem = until - now;
     const min = Math.floor(rem / 60000);
@@ -190,7 +189,7 @@ function updateCooldownUI() {
 }
 
 function isCooldownActive() {
-  const until = parseInt(localStorage.getItem(`cooldownUntil-${currentUserId}`), 10);
+  const until = parseInt(localStorage.getItem(`cooldownUntil_${currentUserId}`), 10);
   if (Date.now() < until) {
     Swal.fire("Wait", "You must wait 5 minutes between uploads.", "info");
     return true;
