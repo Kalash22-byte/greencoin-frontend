@@ -12,101 +12,197 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
     <style>
-        /* Custom CSS for the new partners section */
+        /* Mobile-first custom styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+        }
+        
+        /* Hero section */
+        .hero-section {
+            position: relative;
+            height: 90vh;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1466611653911-95081537e5b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            padding: 0 15px;
+        }
+        
+        .hero-section h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-section .lead {
+            font-size: 1.1rem;
+        }
+        
+        .scroll-down-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
+            40% {transform: translateY(-20px) translateX(-50%);}
+            60% {transform: translateY(-10px) translateX(-50%);}
+        }
+        
+        /* Impact counter */
+        .impact-counter {
+            background-color: #28a745;
+            color: white;
+            padding: 1rem 0;
+        }
+        
+        .impact-item {
+            padding: 10px 0;
+        }
+        
+        .impact-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .impact-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        /* Features */
+        .feature-card {
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-img {
+            height: 60px;
+            margin-bottom: 15px;
+        }
+        
+        /* Partners */
         .partners-carousel {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            gap: 1rem;
+            -webkit-overflow-scrolling: touch;
         }
         
         .partner-card {
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            width: 280px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .partner-card:hover {
-            transform: translateY(-5px);
+            width: 260px;
+            flex: 0 0 auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .partner-logo {
             background: #f8f9fa;
-            padding: 1.5rem;
+            padding: 1rem;
             text-align: center;
             border-bottom: 1px solid #eee;
         }
         
         .partner-logo img {
-            max-height: 60px;
+            max-height: 50px;
             width: auto;
         }
         
         .partner-info {
-            padding: 1.5rem;
+            padding: 1rem;
             text-align: center;
         }
         
         .partner-info h5 {
-            color: #2c3e50;
+            font-size: 1rem;
             margin-bottom: 0.5rem;
         }
         
         .partner-info p {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
         }
         
-        /* Hero section styling */
-        .hero-section {
-            position: relative;
-            height: 100vh;
-            min-height: 600px;
+        /* Activity feed */
+        .activity-item {
             display: flex;
-            align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1466611653911-95081537e5b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
-            color: white;
-            text-align: center;
-            overflow: hidden;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
         }
         
-        .impact-counter {
-            background-color: #28a745;
-            color: white;
+        .activity-avatar {
+            margin-right: 1rem;
         }
         
-        .impact-item {
-            padding: 15px 0;
+        .activity-avatar img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
         }
         
-        .impact-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
+        .activity-content {
+            flex: 1;
         }
         
-        .impact-number {
-            font-size: 2rem;
-            font-weight: bold;
+        .activity-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
         }
         
-        .feature-card {
-            transition: transform 0.3s ease;
+        /* Testimonials */
+        .testimonial-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
         }
         
-        .feature-card:hover {
-            transform: translateY(-10px);
+        /* Buttons */
+        .btn-lg {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
         }
         
-        .feature-img {
-            height: 80px;
-            margin-bottom: 20px;
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .hero-section h1 {
+                font-size: 3rem;
+            }
+            
+            .hero-section .lead {
+                font-size: 1.25rem;
+            }
+            
+            .partners-carousel {
+                flex-wrap: wrap;
+                justify-content: center;
+                overflow-x: visible;
+                gap: 2rem;
+            }
+            
+            .partner-card {
+                width: 280px;
+            }
         }
     </style>
 </head>
@@ -145,17 +241,17 @@
         </div>
     </nav>
 
-    <!-- Hero Section with Parallax -->
+    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container text-center">
-            <h1 class="display-3 fw-bold mb-4" data-aos="fade-up">Plant. Prove. Prosper. <span class="slogan-emoji">🌱</span></h1>
-            <p class="lead mb-5 fs-4" data-aos="fade-up" data-aos-delay="100">Your green actions earn green rewards! Join our movement and get rewarded for planting trees.</p>
-            <div class="d-flex justify-content-center gap-3 flex-wrap" data-aos="fade-up" data-aos-delay="200">
-                <a href="#" class="btn btn-light btn-lg px-4 py-3 upload-btn">
+            <h1 class="fw-bold mb-4" data-aos="fade-up">Plant. Prove. Prosper. <span class="slogan-emoji">🌱</span></h1>
+            <p class="lead mb-4" data-aos="fade-up" data-aos-delay="100">Your green actions earn green rewards! Join our movement and get rewarded for planting trees.</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap" data-aos="fade-up" data-aos-delay="200">
+                <a href="#" class="btn btn-light btn-lg px-3 py-2 upload-btn">
                     <i class="fas fa-upload me-2"></i>Upload Proof
                 </a>
-                <a href="#how-it-works" class="btn btn-outline-light btn-lg px-4 py-3">
-                    <i class="fas fa-play-circle me-2"></i>See How It Works
+                <a href="#how-it-works" class="btn btn-outline-light btn-lg px-3 py-2">
+                    <i class="fas fa-play-circle me-2"></i>How It Works
                 </a>
             </div>
         </div>
@@ -165,28 +261,28 @@
     </section>
 
     <!-- Community Impact Counter -->
-    <section class="impact-counter py-4">
+    <section class="impact-counter">
         <div class="container">
             <div class="row text-center">
-                <div class="col-md-4 mb-3 mb-md-0">
+                <div class="col-4">
                     <div class="impact-item">
                         <div class="impact-icon">
                             <i class="fas fa-tree"></i>
                         </div>
                         <div class="impact-number" id="trees-planted">10,000+</div>
-                        <div class="impact-label">Trees Planted</div>
+                        <div class="impact-label">Trees</div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3 mb-md-0">
+                <div class="col-4">
                     <div class="impact-item">
                         <div class="impact-icon">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="impact-number" id="active-users">5,000+</div>
-                        <div class="impact-label">Active Users</div>
+                        <div class="impact-label">Users</div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-4">
                     <div class="impact-item">
                         <div class="impact-icon">
                             <i class="fas fa-handshake"></i>
@@ -202,38 +298,38 @@
     <!-- Features Section -->
     <section class="py-5" id="how-it-works" data-aos="fade-up">
         <div class="container">
-            <div class="row text-center mb-5">
+            <div class="row text-center mb-4">
                 <div class="col-12">
                     <h2 class="fw-bold">How GreenCoin Works</h2>
-                    <p class="lead text-muted">Three simple steps to make an impact and earn rewards</p>
+                    <p class="text-muted">Three simple steps to make an impact and earn rewards</p>
                 </div>
             </div>
-            <div class="row text-center">
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="p-4 rounded-3 bg-white shadow-sm h-100 feature-card">
-                        <div class="feature-icon">
+            <div class="row">
+                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-3 rounded-3 bg-white shadow-sm h-100 feature-card">
+                        <div class="feature-icon text-center">
                             <img src="https://cdn-icons-png.flaticon.com/512/3347/3347985.png" alt="Planting trees" class="feature-img">
                         </div>
-                        <h3>Plant Trees</h3>
-                        <p>Contribute to reforestation efforts by planting trees in your community or supporting our partners.</p>
+                        <h3 class="text-center">Plant Trees</h3>
+                        <p class="text-center">Contribute to reforestation efforts by planting trees in your community or supporting our partners.</p>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="p-4 rounded-3 bg-white shadow-sm h-100 feature-card">
-                        <div class="feature-icon">
+                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-3 rounded-3 bg-white shadow-sm h-100 feature-card">
+                        <div class="feature-icon text-center">
                             <img src="https://cdn-icons-png.flaticon.com/512/3347/3347997.png" alt="Upload proof" class="feature-img">
                         </div>
-                        <h3>Upload Proof</h3>
-                        <p>Document your environmental actions with photos or receipts to earn GreenCoins.</p>
+                        <h3 class="text-center">Upload Proof</h3>
+                        <p class="text-center">Document your environmental actions with photos or receipts to earn GreenCoins.</p>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="p-4 rounded-3 bg-white shadow-sm h-100 feature-card">
-                        <div class="feature-icon">
+                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="p-3 rounded-3 bg-white shadow-sm h-100 feature-card">
+                        <div class="feature-icon text-center">
                             <img src="https://cdn-icons-png.flaticon.com/512/3347/3347953.png" alt="Get rewards" class="feature-img">
                         </div>
-                        <h3>Get Rewarded</h3>
-                        <p>Redeem your GreenCoins for exclusive perks, discounts, or donate to environmental causes.</p>
+                        <h3 class="text-center">Get Rewarded</h3>
+                        <p class="text-center">Redeem your GreenCoins for exclusive perks, discounts, or donate to environmental causes.</p>
                     </div>
                 </div>
             </div>
@@ -243,13 +339,13 @@
     <!-- Sustainability Partners Section -->
     <section class="py-5 bg-light" id="partners">
         <div class="container">
-            <div class="row text-center mb-5">
+            <div class="row text-center mb-4">
                 <div class="col-12">
                     <h2 class="fw-bold">Our Sustainability Partners</h2>
-                    <p class="lead text-muted">Redeem your GreenCoins with these eco-conscious brands</p>
+                    <p class="text-muted">Redeem your GreenCoins with these eco-conscious brands</p>
                 </div>
             </div>
-            <div class="row justify-content-center">
+            <div class="row">
                 <div class="col-12">
                     <div class="partners-carousel">
                         <!-- Partner 1 -->
@@ -300,7 +396,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-center mt-4">
+                    <div class="text-center mt-3">
                         <a href="#" class="btn btn-primary">View All Partners</a>
                     </div>
                 </div>
@@ -308,28 +404,29 @@
         </div>
     </section>
 
-    <!-- Example Section -->
+    <!-- Community Impact Section -->
     <section class="py-5" id="community">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
-                    <h2 class="fw-bold mb-4">Real Impact From Our Community</h2>
-                    <p class="lead">See how users like you are making a difference while earning rewards.</p>
-                    <div class="d-flex align-items-center mb-4">
+            <div class="row">
+                <div class="col-12 mb-4" data-aos="fade-right">
+                    <h2 class="fw-bold mb-3 text-center">Real Impact From Our Community</h2>
+                    <p class="lead text-center">See how users like you are making a difference while earning rewards.</p>
+                    
+                    <div class="d-flex align-items-center mb-3">
                         <i class="fas fa-check-circle text-success me-3 fs-4"></i>
                         <div>
                             <h5 class="mb-1">Verified Planting</h5>
                             <p class="mb-0">Every tree planted is verified by our AI technology</p>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-center mb-3">
                         <i class="fas fa-check-circle text-success me-3 fs-4"></i>
                         <div>
                             <h5 class="mb-1">Instant Rewards</h5>
                             <p class="mb-0">Earn GreenCoins immediately after verification</p>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center mb-4">
                         <i class="fas fa-check-circle text-success me-3 fs-4"></i>
                         <div>
                             <h5 class="mb-1">Community Impact</h5>
@@ -337,7 +434,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6" data-aos="fade-left">
+                <div class="col-12" data-aos="fade-left">
                     <img src="https://images.unsplash.com/photo-1604871000636-074fa5117945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1587&q=80" 
                          alt="Community member planting trees" 
                          class="img-fluid rounded shadow">
@@ -349,10 +446,10 @@
     <!-- Activity Feed Section -->
     <section class="py-5 bg-light" id="activity-feed">
         <div class="container">
-            <div class="row text-center mb-5">
+            <div class="row text-center mb-4">
                 <div class="col-12">
                     <h2 class="fw-bold">Recent Community Activity</h2>
-                    <p class="lead text-muted">See what our community has been up to</p>
+                    <p class="text-muted">See what our community has been up to</p>
                 </div>
             </div>
             <div class="row">
@@ -398,7 +495,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-center mt-4">
+                    <div class="text-center mt-3">
                         <a href="#" class="btn btn-outline-primary">View More Activity</a>
                     </div>
                 </div>
@@ -409,14 +506,14 @@
     <!-- Testimonials -->
     <section class="py-5">
         <div class="container">
-            <div class="row text-center mb-5">
+            <div class="row text-center mb-4">
                 <div class="col-12">
                     <h2 class="fw-bold">What Our Users Say</h2>
-                    <p class="lead text-muted">Hear from our community of eco-conscious users</p>
+                    <p class="text-muted">Hear from our community of eco-conscious users</p>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-4 mb-4" data-aos="fade-up">
+                <div class="col-12 mb-3" data-aos="fade-up">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="User testimonial" class="rounded-circle testimonial-img mb-3">
@@ -432,7 +529,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="100">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User testimonial" class="rounded-circle testimonial-img mb-3">
@@ -448,7 +545,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="200">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User testimonial" class="rounded-circle testimonial-img mb-3">
@@ -471,9 +568,9 @@
     <!-- Final CTA -->
     <section class="py-5 bg-light">
         <div class="container text-center" data-aos="zoom-in">
-            <h2 class="fw-bold mb-4">Ready to Make a Difference?</h2>
-            <p class="lead mb-5">Join thousands of users who are improving the planet while earning rewards.</p>
-            <a href="register.html" class="btn btn-primary btn-lg px-5 py-3 register-link">Get Started Now</a>
+            <h2 class="fw-bold mb-3">Ready to Make a Difference?</h2>
+            <p class="lead mb-4">Join thousands of users who are improving the planet while earning rewards.</p>
+            <a href="register.html" class="btn btn-primary btn-lg px-4 py-2 register-link">Get Started Now</a>
         </div>
     </section>
 
@@ -481,17 +578,17 @@
     <footer class="py-5 bg-dark text-white">
         <div class="container">
             <div class="row">
-                <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="col-12 mb-4">
                     <h5 class="mb-3"><i class="fas fa-leaf me-2"></i>GreenCoin</h5>
                     <p>We empower communities to take climate action by rewarding sustainable behavior. Together, we're growing a greener future—one tree at a time.</p>
-                    <div class="mt-4">
+                    <div class="mt-3">
                         <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
                         <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
                         <a href="#" class="text-white me-3"><i class="fab fa-tiktok fa-lg"></i></a>
                         <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                <div class="col-6 mb-4">
                     <h5 class="mb-3">Quick Links</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="#how-it-works" class="text-white">How It Works</a></li>
@@ -500,7 +597,7 @@
                         <li class="mb-2"><a href="login.html" class="text-white">Login</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-6 mb-4">
                     <h5 class="mb-3">Contact</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="fas fa-envelope me-2"></i> hello@greencoin.eco</li>
@@ -511,11 +608,9 @@
             </div>
             <hr class="my-4 bg-light">
             <div class="row">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="small mb-0">© 2023 GreenCoin. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <p class="small mb-0">
+                <div class="col-12 text-center">
+                    <p class="small mb-2">© 2023 GreenCoin. All rights reserved.</p>
+                    <p class="small">
                         <a href="#" class="text-white">Privacy Policy</a> | 
                         <a href="#" class="text-white">Terms of Service</a> |
                         <a href="#" class="text-white">Sustainability Report</a>
@@ -564,7 +659,7 @@
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start + "+";
+                obj.innerHTML = Math.floor(progress * (end - start) + start) + "+";
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
                 }
