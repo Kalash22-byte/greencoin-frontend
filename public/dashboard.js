@@ -12,7 +12,6 @@ window.onload = () => {
   loadUploadHistory();
   loadModel();
 
-  // Event Listeners
   document.getElementById("uploadBtn").addEventListener("click", openCamera);
   document.getElementById("captureBtn").addEventListener("click", capturePhoto);
   document.getElementById("retryBtn").addEventListener("click", resetCamera);
@@ -61,15 +60,22 @@ async function loadUploadHistory() {
 // ====================== AI MODEL ======================
 async function loadModel() {
   model = await tmImage.load(modelURL, metadataURL);
+  console.log("[AI] Model loaded");
 }
 
 // ====================== CAMERA CONTROLS ======================
 function openCamera() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } })
-    .then(stream => {
-      webcamStream = stream;
-      const video = document.getElementById("video");
-      video.srcObject = stream;
+  console.log("[Camera] Requesting access...");
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: currentFacingMode } },
+    audio: false
+  }).then(stream => {
+    webcamStream = stream;
+    const video = document.getElementById("video");
+    video.srcObject = stream;
+
+    video.onloadedmetadata = () => {
+      video.play();
       video.style.display = "block";
       document.getElementById("canvas").style.display = "none";
       document.getElementById("camera-section").style.display = "block";
@@ -77,8 +83,11 @@ function openCamera() {
       document.getElementById("retryBtn").style.display = "none";
       document.getElementById("submitBtn").style.display = "none";
       document.getElementById("predictionResults").style.display = "none";
-    })
-    .catch(() => Swal.fire("Error", "Camera access denied", "error"));
+    };
+  }).catch(err => {
+    console.error("[Camera] Error:", err);
+    Swal.fire("Error", "Camera access denied or not supported", "error");
+  });
 }
 
 function switchCamera() {
@@ -88,14 +97,20 @@ function switchCamera() {
 }
 
 function capturePhoto() {
+  console.log("[Capture] Attempting photo...");
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
+
+  if (video.videoWidth === 0 || video.videoHeight === 0) {
+    Swal.fire("Error", "Camera not ready. Try again in a second.", "warning");
+    return;
+  }
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Add timestamp overlay
   const timestamp = new Date().toLocaleString();
   ctx.fillStyle = "rgba(0,0,0,0.7)";
   ctx.fillRect(10, canvas.height - 40, 300, 30);
@@ -103,7 +118,6 @@ function capturePhoto() {
   ctx.font = "18px Poppins";
   ctx.fillText(timestamp, 15, canvas.height - 20);
 
-  // Update UI
   video.style.display = "none";
   canvas.style.display = "block";
   document.getElementById("captureBtn").style.display = "none";
@@ -118,33 +132,27 @@ function capturePhoto() {
 async function predictImage(image) {
   try {
     const predictions = await model.predict(image);
-    console.log("Prediction Results:", predictions); // Debug
-
     const topPrediction = predictions.sort((a, b) => b.probability - a.probability)[0];
     const isTree = topPrediction.className.toLowerCase() === "tree";
     const highConfidence = topPrediction.probability > 0.95;
 
-    document.getElementById("modelPrediction").innerText = 
-      `${topPrediction.className}: ${(topPrediction.probability * 100).toFixed(2)}%`;
+    const confidence = (topPrediction.probability * 100).toFixed(2);
+    document.getElementById("modelPrediction").innerText =
+      `${topPrediction.className === "tree" ? "🌳 Tree" : "❌ Not a Tree"}: ${confidence}%`;
+
+    const confidenceBar = document.getElementById("confidenceBar");
+    confidenceBar.style.width = `${confidence}%`;
+    confidenceBar.innerText = `${confidence}%`;
 
     if (isTree && highConfidence) {
       document.getElementById("submitBtn").style.display = "inline-block";
-      Swal.fire({
-        title: "✅ Tree Detected!",
-        text: "You can now upload this image.",
-        icon: "success",
-        timer: 2000,
-      });
+      Swal.fire("✅ Tree Detected!", "You can now upload this image.", "success");
     } else {
       document.getElementById("submitBtn").style.display = "none";
-      Swal.fire({
-        title: "❌ Not a Tree",
-        text: "AI did not detect a tree with high confidence.",
-        icon: "error",
-      });
+      Swal.fire("❌ Not a Tree", "AI did not detect a tree with high confidence.", "error");
     }
   } catch (err) {
-    console.error("Prediction Error:", err);
+    console.error("[AI] Prediction error:", err);
     Swal.fire("Error", "AI analysis failed", "error");
   }
 }
@@ -158,7 +166,7 @@ function uploadImage() {
   }
 
   if (lastUploadTime && (Date.now() - lastUploadTime < 5 * 60 * 1000)) {
-    const remainingMinutes = Math.ceil((5 * 60 * 1000 - (Date.now() - lastUploadTime)) / 1000 / 60);
+    const remainingMinutes = Math.ceil((5 * 60 * 1000 - (Date.now() - lastUploadTime)) / 60000);
     return Swal.fire("Cooldown", `Please wait ${remainingMinutes} minute(s) before uploading again.`, "info");
   }
 
@@ -181,7 +189,8 @@ function uploadImage() {
 
       if (!res.ok) throw new Error("Upload failed.");
 
-      lastUploadTime = Date.now(); // Update cooldown
+      lastUploadTime = Date.now();
+      startCooldown();
       const data = await res.json();
       Swal.fire("Success!", `Tree uploaded! +${data.coinsAwarded || 0} coins`, "success");
       stopCamera();
@@ -192,6 +201,27 @@ function uploadImage() {
       Swal.fire("Error", "Upload failed", "error");
     }
   });
+}
+
+// ====================== COOLDOWN TIMER ======================
+function startCooldown() {
+  const cooldownEl = document.getElementById("cooldownInfo");
+  const timerEl = document.getElementById("cooldownTimer");
+  let timeLeft = 300; // 5 minutes
+
+  cooldownEl.style.display = "block";
+
+  const interval = setInterval(() => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerEl.innerText = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    timeLeft--;
+
+    if (timeLeft < 0) {
+      clearInterval(interval);
+      cooldownEl.style.display = "none";
+    }
+  }, 1000);
 }
 
 // ====================== UTILITY FUNCTIONS ======================
