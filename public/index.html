@@ -8,210 +8,839 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Poppins) -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts (Poppins + new premium font) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
-        /* Mobile-first custom styles */
+        :root {
+            --primary: #00b894;
+            --primary-dark: #00997a;
+            --secondary: #0984e3;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --accent: #fdcb6e;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', 'Poppins', sans-serif;
             overflow-x: hidden;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+        }
+        
+        .navbar {
+            background-color: rgba(255,255,255,0.95);
+            box-shadow: 0 2px 30px rgba(0,0,0,0.08);
+            padding: 15px 0;
         }
         
         .navbar-brand {
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            transition: transform 0.3s ease;
+        }
+        
+        .navbar-brand:hover i {
+            transform: rotate(-15deg);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin: 0 8px;
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
         }
         
         /* Hero section */
         .hero-section {
             position: relative;
-            height: 90vh;
-            min-height: 500px;
+            height: 100vh;
+            min-height: 700px;
             display: flex;
             align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1466611653911-95081537e5b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://images.unsplash.com/photo-1466611653911-95081537e5b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
             color: white;
             text-align: center;
             padding: 0 15px;
+            overflow: hidden;
+        }
+        
+        .hero-section:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(transparent, var(--light));
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
         
         .hero-section h1 {
-            font-size: 2.2rem;
-            margin-bottom: 1rem;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
         .hero-section .lead {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .slogan-emoji {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            border: none;
+            font-weight: 500;
+            padding: 12px 28px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-outline-light {
+            border: 2px solid white;
+            color: white;
+            font-weight: 500;
+            padding: 10px 26px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-light:hover {
+            background: white;
+            color: var(--primary);
         }
         
         .scroll-down-indicator {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 1.5rem;
-            animation: bounce 2s infinite;
+            width: 40px;
+            height: 60px;
+            border: 2px solid rgba(255,255,255,0.7);
+            border-radius: 25px;
+            z-index: 2;
         }
         
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
-            40% {transform: translateY(-20px) translateX(-50%);}
-            60% {transform: translateY(-10px) translateX(-50%);}
+        .scroll-down-indicator:before {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 10px;
+            background: white;
+            border-radius: 3px;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: scrollDown 2s infinite;
+        }
+        
+        @keyframes scrollDown {
+            0% {
+                opacity: 1;
+                transform: translateY(0) translateX(-50%);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(20px) translateX(-50%);
+            }
         }
         
         /* Impact counter */
         .impact-counter {
-            background-color: #28a745;
+            background: var(--gradient);
             color: white;
-            padding: 1rem 0;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 1;
+            margin-top: -1px;
+        }
+        
+        .impact-counter:before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%23f5f6fa" opacity=".25"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="%23f5f6fa" opacity=".5"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23f5f6fa"/></svg>');
+            background-size: cover;
+            z-index: -1;
         }
         
         .impact-item {
-            padding: 10px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+        
+        .impact-item:hover {
+            transform: translateY(-5px);
         }
         
         .impact-icon {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--accent);
         }
         
         .impact-number {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .impact-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* Section headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-header h2:after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background: var(--gradient);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+        
+        .section-header p {
+            color: #6c757d;
+            max-width: 700px;
+            margin: 0 auto;
         }
         
         /* Features */
-        .feature-card {
-            transition: transform 0.3s ease;
-            margin-bottom: 1rem;
+        .features-section {
+            position: relative;
+            overflow: hidden;
         }
         
-        .feature-img {
-            height: 60px;
-            margin-bottom: 15px;
+        .features-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/always-grey.png');
+            opacity: 0.03;
+            z-index: -1;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            height: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 184, 148, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .feature-icon img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+        
+        .feature-card p {
+            color: #6c757d;
         }
         
         /* Partners */
-        .partners-carousel {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            padding-bottom: 15px;
-            gap: 1rem;
-            -webkit-overflow-scrolling: touch;
+        .partners-section {
+            background: white;
+            position: relative;
         }
         
         .partner-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            width: 260px;
-            flex: 0 0 auto;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        
+        .partner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         
         .partner-logo {
-            background: #f8f9fa;
-            padding: 1rem;
+            padding: 2rem;
             text-align: center;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .partner-logo img {
-            max-height: 50px;
+            max-height: 80px;
+            max-width: 180px;
             width: auto;
+            filter: grayscale(100%);
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+        
+        .partner-card:hover .partner-logo img {
+            filter: grayscale(0);
+            opacity: 1;
         }
         
         .partner-info {
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
         }
         
         .partner-info h5 {
-            font-size: 1rem;
+            font-size: 1.1rem;
             margin-bottom: 0.5rem;
         }
         
         .partner-info p {
-            font-size: 0.8rem;
-            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: #6c757d;
+        }
+        
+        /* Community section */
+        .community-section {
+            background: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .community-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,184,148,0.1) 0%, rgba(9,132,227,0.1) 100%);
+            z-index: 0;
+        }
+        
+        .community-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .community-img {
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: all 0.5s ease;
+            border: 10px solid white;
+        }
+        
+        .community-img:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            background: rgba(255,255,255,0.8);
+            padding: 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .benefit-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .benefit-content h5 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .benefit-content p {
+            color: #6c757d;
+            margin-bottom: 0;
         }
         
         /* Activity feed */
+        .activity-section {
+            background: white;
+        }
+        
         .activity-item {
             display: flex;
             margin-bottom: 1.5rem;
             background: white;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+        }
+        
+        .activity-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         
         .activity-avatar {
-            margin-right: 1rem;
+            margin-right: 1.5rem;
+            flex-shrink: 0;
         }
         
         .activity-avatar img {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .activity-content {
             flex: 1;
         }
         
+        .activity-content h5 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .activity-content p {
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        
         .activity-meta {
             font-size: 0.8rem;
-            color: #6c757d;
+            color: #adb5bd;
             display: flex;
             justify-content: space-between;
             margin-top: 0.5rem;
         }
         
-        /* Testimonials */
-        .testimonial-img {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
+        .activity-likes {
+            color: var(--primary);
+            font-weight: 500;
         }
         
-        /* Buttons */
-        .btn-lg {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
+        /* Testimonials */
+        .testimonials-section {
+            position: relative;
+        }
+        
+        .testimonial-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        
+        .testimonial-card:before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 5rem;
+            font-family: Georgia, serif;
+            color: rgba(0, 184, 148, 0.1);
+            line-height: 1;
+            z-index: 0;
+        }
+        
+        .testimonial-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .testimonial-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .testimonial-card h5 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .testimonial-card p {
+            color: #6c757d;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+        }
+        
+        .testimonial-rating {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        /* CTA section */
+        .cta-section {
+            background: var(--gradient);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/45-degree-fabric-light.png');
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .cta-section h2 {
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .cta-section p {
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-btn {
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+            padding: 15px 35px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            color: var(--primary-dark);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            position: relative;
+            padding-top: 4rem;
+        }
+        
+        .footer:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%2300b894" opacity=".25"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="%2300b894" opacity=".5"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%2300b894"/></svg>');
+            background-size: cover;
+            background-position: bottom;
+            z-index: 0;
+        }
+        
+        .footer-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer-logo {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+        
+        .footer-logo i {
+            color: var(--accent);
+        }
+        
+        .footer p {
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .footer-links h5 {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-links h5:after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+            bottom: 0;
+            left: 0;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .footer-contact li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .footer-contact i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-bottom p {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+        
+        .footer-bottom a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-bottom a:hover {
+            color: var(--accent);
+        }
+        
+        /* Login Modal */
+        .modal-content {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background: var(--gradient);
+            color: white;
+            border: none;
+        }
+        
+        .btn-close {
+            filter: invert(1);
         }
         
         /* Responsive adjustments */
         @media (min-width: 768px) {
             .hero-section h1 {
-                font-size: 3rem;
+                font-size: 4rem;
             }
             
             .hero-section .lead {
-                font-size: 1.25rem;
+                font-size: 1.5rem;
             }
             
-            .partners-carousel {
-                flex-wrap: wrap;
-                justify-content: center;
-                overflow-x: visible;
-                gap: 2rem;
+            .impact-item {
+                padding: 2rem 1rem;
             }
             
-            .partner-card {
-                width: 280px;
+            .impact-number {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .section-header h2 {
+                font-size: 2rem;
+            }
+            
+            .footer-links {
+                margin-bottom: 2rem;
             }
         }
     </style>
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">
-                <i class="fas fa-leaf me-2"></i>GreenCoin
+                <i class="fas fa-seedling me-2"></i>GreenCoin
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -233,8 +862,8 @@
                     <li class="nav-item">
                         <a class="nav-link" href="login.html">Login</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="btn btn-outline-primary ms-2 register-link" href="register.html">Register</a>
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        <a class="btn btn-outline-primary register-link" href="register.html">Register</a>
                     </li>
                 </ul>
             </div>
@@ -243,52 +872,50 @@
 
     <!-- Hero Section -->
     <section class="hero-section">
-        <div class="container text-center">
-            <h1 class="fw-bold mb-4" data-aos="fade-up">Plant. Prove. Prosper. <span class="slogan-emoji">🌱</span></h1>
-            <p class="lead mb-4" data-aos="fade-up" data-aos-delay="100">Your green actions earn green rewards! Join our movement and get rewarded for planting trees.</p>
-            <div class="d-flex justify-content-center gap-2 flex-wrap" data-aos="fade-up" data-aos-delay="200">
-                <a href="#" class="btn btn-light btn-lg px-3 py-2 upload-btn">
+        <div class="container text-center hero-content" data-aos="fade-up">
+            <h1 class="fw-bold mb-4">Plant. Prove. Prosper. <span class="slogan-emoji">🌱</span></h1>
+            <p class="lead mb-4">Your green actions earn green rewards! Join our movement and get rewarded for planting trees.</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="#" class="btn btn-primary px-4 py-3 upload-btn">
                     <i class="fas fa-upload me-2"></i>Upload Proof
                 </a>
-                <a href="#how-it-works" class="btn btn-outline-light btn-lg px-3 py-2">
+                <a href="#how-it-works" class="btn btn-outline-light px-4 py-3">
                     <i class="fas fa-play-circle me-2"></i>How It Works
                 </a>
             </div>
         </div>
-        <div class="scroll-down-indicator" data-aos="fade-up" data-aos-delay="300">
-            <i class="fas fa-chevron-down"></i>
-        </div>
+        <div class="scroll-down-indicator"></div>
     </section>
 
     <!-- Community Impact Counter -->
     <section class="impact-counter">
         <div class="container">
             <div class="row text-center">
-                <div class="col-4">
+                <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up">
                     <div class="impact-item">
                         <div class="impact-icon">
                             <i class="fas fa-tree"></i>
                         </div>
                         <div class="impact-number" id="trees-planted">10,000+</div>
-                        <div class="impact-label">Trees</div>
+                        <div class="impact-label">Trees Planted</div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="100">
                     <div class="impact-item">
                         <div class="impact-icon">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="impact-number" id="active-users">5,000+</div>
-                        <div class="impact-label">Users</div>
+                        <div class="impact-label">Active Users</div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="impact-item">
                         <div class="impact-icon">
                             <i class="fas fa-handshake"></i>
                         </div>
                         <div class="impact-number" id="partners-count">50+</div>
-                        <div class="impact-label">Partners</div>
+                        <div class="impact-label">Eco Partners</div>
                     </div>
                 </div>
             </div>
@@ -296,37 +923,35 @@
     </section>
 
     <!-- Features Section -->
-    <section class="py-5" id="how-it-works" data-aos="fade-up">
+    <section class="py-5 features-section" id="how-it-works">
         <div class="container">
-            <div class="row text-center mb-4">
-                <div class="col-12">
-                    <h2 class="fw-bold">How GreenCoin Works</h2>
-                    <p class="text-muted">Three simple steps to make an impact and earn rewards</p>
-                </div>
+            <div class="section-header" data-aos="fade-up">
+                <h2>How GreenCoin Works</h2>
+                <p>Three simple steps to make an impact and earn rewards</p>
             </div>
-            <div class="row">
-                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="100">
-                    <div class="p-3 rounded-3 bg-white shadow-sm h-100 feature-card">
-                        <div class="feature-icon text-center">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3347/3347985.png" alt="Planting trees" class="feature-img">
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3347/3347985.png" alt="Planting trees">
                         </div>
                         <h3 class="text-center">Plant Trees</h3>
                         <p class="text-center">Contribute to reforestation efforts by planting trees in your community or supporting our partners.</p>
                     </div>
                 </div>
-                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="200">
-                    <div class="p-3 rounded-3 bg-white shadow-sm h-100 feature-card">
-                        <div class="feature-icon text-center">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3347/3347997.png" alt="Upload proof" class="feature-img">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3347/3347997.png" alt="Upload proof">
                         </div>
                         <h3 class="text-center">Upload Proof</h3>
                         <p class="text-center">Document your environmental actions with photos or receipts to earn GreenCoins.</p>
                     </div>
                 </div>
-                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="300">
-                    <div class="p-3 rounded-3 bg-white shadow-sm h-100 feature-card">
-                        <div class="feature-icon text-center">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3347/3347953.png" alt="Get rewards" class="feature-img">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3347/3347953.png" alt="Get rewards">
                         </div>
                         <h3 class="text-center">Get Rewarded</h3>
                         <p class="text-center">Redeem your GreenCoins for exclusive perks, discounts, or donate to environmental causes.</p>
@@ -337,165 +962,173 @@
     </section>
 
     <!-- Sustainability Partners Section -->
-    <section class="py-5 bg-light" id="partners">
+    <section class="py-5 partners-section" id="partners">
         <div class="container">
-            <div class="row text-center mb-4">
-                <div class="col-12">
-                    <h2 class="fw-bold">Our Sustainability Partners</h2>
-                    <p class="text-muted">Redeem your GreenCoins with these eco-conscious brands</p>
+            <div class="section-header" data-aos="fade-up">
+                <h2>Our Sustainability Partners</h2>
+                <p>Redeem your GreenCoins with these eco-conscious brands</p>
+            </div>
+            <div class="row g-4">
+                <!-- Partner 1 -->
+                <div class="col-md-6 col-lg-3" data-aos="fade-up">
+                    <div class="partner-card h-100">
+                        <div class="partner-logo">
+                            <img src="https://via.placeholder.com/150x80?text=EcoWear&color=20c997" alt="EcoWear Logo">
+                        </div>
+                        <div class="partner-info">
+                            <h5>EcoWear</h5>
+                            <p>20% off sustainable apparel for 50 GreenCoins</p>
+                            <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Partner 2 -->
+                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="partner-card h-100">
+                        <div class="partner-logo">
+                            <img src="https://via.placeholder.com/150x80?text=GreenEats&color=20c997" alt="GreenEats Logo">
+                        </div>
+                        <div class="partner-info">
+                            <h5>GreenEats</h5>
+                            <p>Free meal with 30 GreenCoins</p>
+                            <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Partner 3 -->
+                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="partner-card h-100">
+                        <div class="partner-logo">
+                            <img src="https://via.placeholder.com/150x80?text=EarthBooks&color=20c997" alt="EarthBooks Logo">
+                        </div>
+                        <div class="partner-info">
+                            <h5>EarthBooks</h5>
+                            <p>15% off environmental books for 25 GreenCoins</p>
+                            <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Partner 4 -->
+                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="partner-card h-100">
+                        <div class="partner-logo">
+                            <img src="https://via.placeholder.com/150x80?text=BikeShare&color=20c997" alt="BikeShare Logo">
+                        </div>
+                        <div class="partner-info">
+                            <h5>BikeShare</h5>
+                            <p>1 month free membership for 100 GreenCoins</p>
+                            <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="partners-carousel">
-                        <!-- Partner 1 -->
-                        <div class="partner-card" data-aos="fade-up">
-                            <div class="partner-logo">
-                                <img src="https://via.placeholder.com/150x80?text=EcoWear&color=20c997" alt="EcoWear Logo">
-                            </div>
-                            <div class="partner-info">
-                                <h5>EcoWear</h5>
-                                <p>20% off sustainable apparel for 50 GreenCoins</p>
-                                <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
-                            </div>
-                        </div>
-                        
-                        <!-- Partner 2 -->
-                        <div class="partner-card" data-aos="fade-up" data-aos-delay="100">
-                            <div class="partner-logo">
-                                <img src="https://via.placeholder.com/150x80?text=GreenEats&color=20c997" alt="GreenEats Logo">
-                            </div>
-                            <div class="partner-info">
-                                <h5>GreenEats</h5>
-                                <p>Free meal with 30 GreenCoins</p>
-                                <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
-                            </div>
-                        </div>
-                        
-                        <!-- Partner 3 -->
-                        <div class="partner-card" data-aos="fade-up" data-aos-delay="200">
-                            <div class="partner-logo">
-                                <img src="https://via.placeholder.com/150x80?text=EarthBooks&color=20c997" alt="EarthBooks Logo">
-                            </div>
-                            <div class="partner-info">
-                                <h5>EarthBooks</h5>
-                                <p>15% off environmental books for 25 GreenCoins</p>
-                                <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
-                            </div>
-                        </div>
-                        
-                        <!-- Partner 4 -->
-                        <div class="partner-card" data-aos="fade-up" data-aos-delay="300">
-                            <div class="partner-logo">
-                                <img src="https://via.placeholder.com/150x80?text=BikeShare&color=20c997" alt="BikeShare Logo">
-                            </div>
-                            <div class="partner-info">
-                                <h5>BikeShare</h5>
-                                <p>1 month free membership for 100 GreenCoins</p>
-                                <a href="#" class="btn btn-sm btn-outline-success">Redeem Offer</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="#" class="btn btn-primary">View All Partners</a>
-                    </div>
-                </div>
+            <div class="text-center mt-5" data-aos="fade-up">
+                <a href="#" class="btn btn-primary">View All Partners</a>
             </div>
         </div>
     </section>
 
     <!-- Community Impact Section -->
-    <section class="py-5" id="community">
+    <section class="py-5 community-section" id="community">
         <div class="container">
-            <div class="row">
-                <div class="col-12 mb-4" data-aos="fade-right">
-                    <h2 class="fw-bold mb-3 text-center">Real Impact From Our Community</h2>
-                    <p class="lead text-center">See how users like you are making a difference while earning rewards.</p>
-                    
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-check-circle text-success me-3 fs-4"></i>
-                        <div>
-                            <h5 class="mb-1">Verified Planting</h5>
-                            <p class="mb-0">Every tree planted is verified by our AI technology</p>
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <div class="community-content">
+                        <h2 class="fw-bold mb-4" data-aos="fade-right">Real Impact From Our Community</h2>
+                        <p class="lead mb-5" data-aos="fade-right" data-aos-delay="100">See how users like you are making a difference while earning rewards.</p>
+                        
+                        <div class="benefit-item" data-aos="fade-right" data-aos-delay="200">
+                            <div class="benefit-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Verified Planting</h5>
+                                <p>Every tree planted is verified by our AI technology</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-check-circle text-success me-3 fs-4"></i>
-                        <div>
-                            <h5 class="mb-1">Instant Rewards</h5>
-                            <p class="mb-0">Earn GreenCoins immediately after verification</p>
+                        <div class="benefit-item" data-aos="fade-right" data-aos-delay="300">
+                            <div class="benefit-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Instant Rewards</h5>
+                                <p>Earn GreenCoins immediately after verification</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center mb-4">
-                        <i class="fas fa-check-circle text-success me-3 fs-4"></i>
-                        <div>
-                            <h5 class="mb-1">Community Impact</h5>
-                            <p class="mb-0">See the collective difference we're making</p>
+                        <div class="benefit-item" data-aos="fade-right" data-aos-delay="400">
+                            <div class="benefit-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Community Impact</h5>
+                                <p>See the collective difference we're making</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-12" data-aos="fade-left">
+                <div class="col-lg-6" data-aos="fade-left">
                     <img src="https://images.unsplash.com/photo-1604871000636-074fa5117945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1587&q=80" 
                          alt="Community member planting trees" 
-                         class="img-fluid rounded shadow">
+                         class="img-fluid community-img">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Activity Feed Section -->
-    <section class="py-5 bg-light" id="activity-feed">
+    <section class="py-5 activity-section" id="activity-feed">
         <div class="container">
-            <div class="row text-center mb-4">
-                <div class="col-12">
-                    <h2 class="fw-bold">Recent Community Activity</h2>
-                    <p class="text-muted">See what our community has been up to</p>
-                </div>
+            <div class="section-header" data-aos="fade-up">
+                <h2>Recent Community Activity</h2>
+                <p>See what our community has been up to</p>
             </div>
             <div class="row">
-                <div class="col-12">
+                <div class="col-lg-8 mx-auto">
                     <div class="activity-feed">
-                        <div class="activity-item">
+                        <div class="activity-item" data-aos="fade-up">
                             <div class="activity-avatar">
-                                <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="User avatar" class="rounded-circle">
+                                <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="User avatar">
                             </div>
                             <div class="activity-content">
                                 <h5>Sarah K.</h5>
                                 <p>Just planted 5 oak trees in Central Park!</p>
                                 <div class="activity-meta">
                                     <span class="activity-time">2 hours ago</span>
-                                    <span class="activity-likes"><i class="fas fa-heart"></i> 24</span>
+                                    <span class="activity-likes"><i class="fas fa-heart me-1"></i> 24</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="activity-item">
+                        <div class="activity-item" data-aos="fade-up" data-aos-delay="100">
                             <div class="activity-avatar">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User avatar" class="rounded-circle">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User avatar">
                             </div>
                             <div class="activity-content">
                                 <h5>David P.</h5>
                                 <p>Reached "Eco Champion" level by planting 50 trees this month!</p>
                                 <div class="activity-meta">
                                     <span class="activity-time">5 hours ago</span>
-                                    <span class="activity-likes"><i class="fas fa-heart"></i> 42</span>
+                                    <span class="activity-likes"><i class="fas fa-heart me-1"></i> 42</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="activity-item">
+                        <div class="activity-item" data-aos="fade-up" data-aos-delay="200">
                             <div class="activity-avatar">
-                                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User avatar" class="rounded-circle">
+                                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User avatar">
                             </div>
                             <div class="activity-content">
                                 <h5>Maria G.</h5>
                                 <p>Redeemed GreenCoins for a sustainable water bottle</p>
                                 <div class="activity-meta">
                                     <span class="activity-time">1 day ago</span>
-                                    <span class="activity-likes"><i class="fas fa-heart"></i> 18</span>
+                                    <span class="activity-likes"><i class="fas fa-heart me-1"></i> 18</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="text-center mt-3">
+                    <div class="text-center mt-4" data-aos="fade-up">
                         <a href="#" class="btn btn-outline-primary">View More Activity</a>
                     </div>
                 </div>
@@ -504,22 +1137,20 @@
     </section>
 
     <!-- Testimonials -->
-    <section class="py-5">
+    <section class="py-5 testimonials-section">
         <div class="container">
-            <div class="row text-center mb-4">
-                <div class="col-12">
-                    <h2 class="fw-bold">What Our Users Say</h2>
-                    <p class="text-muted">Hear from our community of eco-conscious users</p>
-                </div>
+            <div class="section-header" data-aos="fade-up">
+                <h2>What Our Users Say</h2>
+                <p>Hear from our community of eco-conscious users</p>
             </div>
-            <div class="row">
-                <div class="col-12 mb-3" data-aos="fade-up">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="User testimonial" class="rounded-circle testimonial-img mb-3">
-                            <h5 class="mb-3">Sarah K.</h5>
-                            <p class="text-muted">"I've planted 20 trees in my neighborhood and earned enough GreenCoins for a free eco-friendly product bundle!"</p>
-                            <div class="text-warning mb-3">
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="User testimonial" class="testimonial-img">
+                        <div class="testimonial-content">
+                            <h5 class="text-center">Sarah K.</h5>
+                            <p class="text-center">"I've planted 20 trees in my neighborhood and earned enough GreenCoins for a free eco-friendly product bundle!"</p>
+                            <div class="testimonial-rating text-center">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
@@ -529,13 +1160,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="100">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User testimonial" class="rounded-circle testimonial-img mb-3">
-                            <h5 class="mb-3">David P.</h5>
-                            <p class="text-muted">"The AI verification is seamless and the rewards are actually valuable. I'm hooked on planting more trees!"</p>
-                            <div class="text-warning mb-3">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User testimonial" class="testimonial-img">
+                        <div class="testimonial-content">
+                            <h5 class="text-center">David P.</h5>
+                            <p class="text-center">"The AI verification is seamless and the rewards are actually valuable. I'm hooked on planting more trees!"</p>
+                            <div class="testimonial-rating text-center">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
@@ -545,13 +1176,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 mb-3" data-aos="fade-up" data-aos-delay="200">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User testimonial" class="rounded-circle testimonial-img mb-3">
-                            <h5 class="mb-3">Maria G.</h5>
-                            <p class="text-muted">"My students love tracking the trees we've planted. It's become an engaging way to teach sustainability."</p>
-                            <div class="text-warning mb-3">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User testimonial" class="testimonial-img">
+                        <div class="testimonial-content">
+                            <h5 class="text-center">Maria G.</h5>
+                            <p class="text-center">"My students love tracking the trees we've planted. It's become an engaging way to teach sustainability."</p>
+                            <div class="testimonial-rating text-center">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
@@ -566,54 +1197,76 @@
     </section>
 
     <!-- Final CTA -->
-    <section class="py-5 bg-light">
-        <div class="container text-center" data-aos="zoom-in">
-            <h2 class="fw-bold mb-3">Ready to Make a Difference?</h2>
-            <p class="lead mb-4">Join thousands of users who are improving the planet while earning rewards.</p>
-            <a href="register.html" class="btn btn-primary btn-lg px-4 py-2 register-link">Get Started Now</a>
+    <section class="py-5 cta-section">
+        <div class="container text-center">
+            <div class="cta-content" data-aos="zoom-in">
+                <h2 class="fw-bold mb-3">Ready to Make a Difference?</h2>
+                <p class="mb-4">Join thousands of users who are improving the planet while earning rewards.</p>
+                <a href="register.html" class="btn cta-btn register-link">
+                    Get Started Now <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-5 bg-dark text-white">
+    <footer class="footer pt-5 pb-3">
         <div class="container">
-            <div class="row">
-                <div class="col-12 mb-4">
-                    <h5 class="mb-3"><i class="fas fa-leaf me-2"></i>GreenCoin</h5>
+            <div class="row footer-content">
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <a href="#" class="footer-logo"><i class="fas fa-seedling me-2"></i>GreenCoin</a>
                     <p>We empower communities to take climate action by rewarding sustainable behavior. Together, we're growing a greener future—one tree at a time.</p>
-                    <div class="mt-3">
-                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="text-white me-3"><i class="fab fa-tiktok fa-lg"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
-                <div class="col-6 mb-4">
-                    <h5 class="mb-3">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#how-it-works" class="text-white">How It Works</a></li>
-                        <li class="mb-2"><a href="#partners" class="text-white">Partners</a></li>
-                        <li class="mb-2"><a href="#community" class="text-white">Community</a></li>
-                        <li class="mb-2"><a href="login.html" class="text-white">Login</a></li>
-                    </ul>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <div class="footer-links">
+                        <h5>Quick Links</h5>
+                        <ul>
+                            <li><a href="#how-it-works">How It Works</a></li>
+                            <li><a href="#partners">Partners</a></li>
+                            <li><a href="#community">Community</a></li>
+                            <li><a href="#activity-feed">Activity</a></li>
+                            <li><a href="login.html">Login</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="col-6 mb-4">
-                    <h5 class="mb-3">Contact</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> hello@greencoin.eco</li>
-                        <li class="mb-2"><i class="fas fa-phone me-2"></i> (555) 123-4567</li>
-                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Green St, Eco City</li>
-                    </ul>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <div class="footer-links">
+                        <h5>Resources</h5>
+                        <ul>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">FAQs</a></li>
+                            <li><a href="#">Guides</a></li>
+                            <li><a href="#">Research</a></li>
+                            <li><a href="#">Support</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <div class="footer-links">
+                        <h5>Contact Us</h5>
+                        <ul class="footer-contact">
+                            <li><i class="fas fa-envelope"></i> hello@greencoin.eco</li>
+                            <li><i class="fas fa-phone"></i> (555) 123-4567</li>
+                            <li><i class="fas fa-map-marker-alt"></i> 123 Green St, Eco City</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <hr class="my-4 bg-light">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="small mb-2">© 2023 GreenCoin. All rights reserved.</p>
-                    <p class="small">
-                        <a href="#" class="text-white">Privacy Policy</a> | 
-                        <a href="#" class="text-white">Terms of Service</a> |
-                        <a href="#" class="text-white">Sustainability Report</a>
+            <div class="row footer-bottom">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-md-0">© 2023 GreenCoin. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-0">
+                        <a href="#">Privacy Policy</a> | 
+                        <a href="#">Terms of Service</a> |
+                        <a href="#">Sustainability Report</a>
                     </p>
                 </div>
             </div>
@@ -678,6 +1331,17 @@
                 e.preventDefault();
                 var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                 loginModal.show();
+            });
+            
+            // Add smooth scrolling to all links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
             });
         });
     </script>
