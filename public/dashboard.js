@@ -3,7 +3,7 @@ const modelURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/model
 const metadataURL = "https://teachablemachine.withgoogle.com/models/cfn939LYh/metadata.json";
 let model, webcamStream;
 let currentFacingMode = "environment";
-let lastUploadTime = null; // Tracks last successful upload
+let lastUploadTime = null;
 
 // ====================== INITIALIZATION ======================
 window.onload = () => {
@@ -95,7 +95,7 @@ function capturePhoto() {
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Add timestamp
+  // Add timestamp overlay
   const timestamp = new Date().toLocaleString();
   ctx.fillStyle = "rgba(0,0,0,0.7)";
   ctx.fillRect(10, canvas.height - 40, 300, 30);
@@ -118,15 +118,15 @@ function capturePhoto() {
 async function predictImage(image) {
   try {
     const predictions = await model.predict(image);
-    const topPrediction = predictions.sort((a, b) => b.probability - a.probability)[0];
-    const isTree = topPrediction.className.toLowerCase().includes("tree");
-    const highConfidence = topPrediction.probability > 0.85;
+    console.log("Prediction Results:", predictions); // Debug
 
-    // Display prediction
+    const topPrediction = predictions.sort((a, b) => b.probability - a.probability)[0];
+    const isTree = topPrediction.className.toLowerCase() === "tree";
+    const highConfidence = topPrediction.probability > 0.95;
+
     document.getElementById("modelPrediction").innerText = 
       `${topPrediction.className}: ${(topPrediction.probability * 100).toFixed(2)}%`;
 
-    // Only allow upload if tree + high confidence
     if (isTree && highConfidence) {
       document.getElementById("submitBtn").style.display = "inline-block";
       Swal.fire({
@@ -144,6 +144,7 @@ async function predictImage(image) {
       });
     }
   } catch (err) {
+    console.error("Prediction Error:", err);
     Swal.fire("Error", "AI analysis failed", "error");
   }
 }
@@ -156,7 +157,6 @@ function uploadImage() {
     return;
   }
 
-  // 5-minute cooldown check
   if (lastUploadTime && (Date.now() - lastUploadTime < 5 * 60 * 1000)) {
     const remainingMinutes = Math.ceil((5 * 60 * 1000 - (Date.now() - lastUploadTime)) / 1000 / 60);
     return Swal.fire("Cooldown", `Please wait ${remainingMinutes} minute(s) before uploading again.`, "info");
@@ -181,8 +181,7 @@ function uploadImage() {
 
       if (!res.ok) throw new Error("Upload failed.");
 
-      // On success:
-      lastUploadTime = Date.now(); // Update cooldown timer
+      lastUploadTime = Date.now(); // Update cooldown
       const data = await res.json();
       Swal.fire("Success!", `Tree uploaded! +${data.coinsAwarded || 0} coins`, "success");
       stopCamera();
