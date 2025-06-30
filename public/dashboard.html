@@ -1,3 +1,4 @@
+<!-- ✅ Final GreenCoin dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,7 @@
   <title>GreenCoin Dashboard</title>
   <link rel="icon" href="favicon.ico" />
 
-  <!-- Bootstrap + Icons + Fonts -->
+  <!-- ✅ Bootstrap + Icons + Fonts -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
@@ -68,122 +69,48 @@
         width: 100%;
       }
     }
-    /* Profile Section Styles */
-    .profile-container {
-      position: relative;
-      text-align: center;
-    }
-    .profile-photo-container {
-      position: relative;
-      display: inline-block;
-      margin-bottom: 1rem;
-    }
-    .profile-photo-edit {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.5);
-      color: white;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .profile-details {
-      text-align: left;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .profile-edit-form {
-      display: none;
-      margin-top: 1rem;
-    }
-    .profile-view {
-      cursor: pointer;
-    }
-    .photo-upload-form {
-      max-width: 300px;
-      margin: 0 auto;
+    .rounded-circle {
+      object-fit: cover;
     }
   </style>
 </head>
 <body>
   <div class="container">
 
-    <!-- Logout Button -->
+    <!-- ✅ Logout Button -->
     <button id="logoutBtn" class="btn btn-danger logout-btn">
       <i class="bi bi-box-arrow-right"></i> Logout
     </button>
 
-    <!-- Updated User Profile Section -->
+    <!-- ✅ User Info with Profile Photo -->
     <div class="card text-center">
-      <div class="profile-container">
-        <div class="profile-photo-container">
-          <img id="profilePhoto" src="https://i.ibb.co/FzJ9Rjp/default-user.png" alt="Profile" 
-               class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;" />
-          <div class="profile-photo-edit" id="editPhotoBtn">
-            <i class="bi bi-camera-fill"></i>
-          </div>
-        </div>
-        
-        <div class="profile-view" id="profileView">
-          <h2>Welcome, <span id="userName">User</span></h2>
-          <p><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
-          <h4><i class="bi bi-coin"></i> <strong>Coins:</strong> <span id="coinBalance">0</span></h4>
-          <button id="editProfileBtn" class="btn btn-primary btn-sm mt-2">
-            <i class="bi bi-pencil-fill"></i> Edit Profile
-          </button>
-        </div>
-
-        <div class="profile-edit-form" id="profileEditForm">
-          <div class="mb-3">
-            <label for="nameInput" class="form-label">Name</label>
-            <input type="text" class="form-control" id="nameInput">
-          </div>
-          <div class="mb-3">
-            <label for="emailInput" class="form-label">Email</label>
-            <input type="email" class="form-control" id="emailInput">
-          </div>
-          <button id="saveProfileBtn" class="btn btn-success me-2">
-            <i class="bi bi-check-circle-fill"></i> Save
-          </button>
-          <button id="cancelEditBtn" class="btn btn-secondary">
-            <i class="bi bi-x-circle-fill"></i> Cancel
-          </button>
-        </div>
-
-        <!-- Photo Upload (hidden by default) -->
-        <div class="photo-upload-form mt-3" id="photoUploadForm" style="display: none;">
-          <input type="file" id="photoUploadInput" accept="image/*" class="form-control mb-2" />
-          <button id="uploadProfileBtn" class="btn btn-primary btn-sm me-2">
-            <i class="bi bi-upload"></i> Upload
-          </button>
-          <button id="cancelUploadBtn" class="btn btn-secondary btn-sm">
-            <i class="bi bi-x"></i> Cancel
-          </button>
-        </div>
-      </div>
+      <img id="profilePhoto" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile" class="rounded-circle mb-3" width="100" height="100" />
+      <h2>Welcome, <span id="userName">User</span></h2>
+      <p>Email: <span id="userEmail">user@example.com</span></p>
+      <h4><i class="bi bi-coin"></i> Coins: <span id="coinBalance">0</span></h4>
+      <input type="file" id="photoUploadInput" accept="image/*" class="form-control mb-2" style="max-width: 250px; margin: auto;" />
+      <button id="uploadProfileBtn" class="btn btn-primary btn-sm">Upload Profile Photo</button>
     </div>
 
-    <!-- Action Buttons -->
+    <!-- ✅ Action Buttons -->
     <div class="text-center mb-3">
       <button id="uploadBtn" class="btn btn-success me-2">
         <i class="bi bi-camera-fill me-1"></i>Upload Tree
       </button>
+      <a href="history.html" class="btn btn-info me-2">
+        <i class="bi bi-clock-history"></i> History
+      </a>
       <a href="redeem.html" class="btn btn-warning">
         <i class="bi bi-gift-fill me-1"></i>Redeem
       </a>
     </div>
 
-    <!-- Cooldown Notice -->
+    <!-- ✅ Cooldown Notice -->
     <div id="cooldownInfo">
       <strong>Upload Cooldown:</strong> <span id="cooldownTimer">5:00</span>
     </div>
 
-    <!-- Camera + AI Section -->
+    <!-- ✅ Camera + AI Section -->
     <div id="camera-section" class="card" style="display: none;">
       <video id="video" autoplay muted playsinline></video>
       <canvas id="canvas" style="display: none;"></canvas>
@@ -203,361 +130,13 @@
         </div>
       </div>
     </div>
-
-    <!-- Upload History -->
-    <div class="card">
-      <h4>Upload History</h4>
-      <div id="historyList" class="mt-3"></div>
-    </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- ✅ Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    // ====================== CONFIG ======================
-    const modelURL = "https://teachablemachine.withgoogle.com/models/jVXRskySZ/model.json";
-    const metadataURL = "https://teachablemachine.withgoogle.com/models/jVXRskySZ/metadata.json";
-    let model, webcamStream;
-    let currentFacingMode = "environment";
-    let lastUploadTime = null;
-
-    // Supabase Client
-    const supabase = supabase.createClient(
-      "https://hzdslybfnjfpiarpyfza.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    );
-
-    // ====================== INIT ======================
-    window.onload = () => {
-      checkAuth();
-      loadUserProfile();
-      loadUploadHistory();
-      loadModel();
-      setupProfileHandlers();
-
-      document.getElementById("logoutBtn").addEventListener("click", () => {
-        localStorage.removeItem("token");
-        window.location.href = "login.html";
-      });
-
-      document.getElementById("uploadBtn").addEventListener("click", openCamera);
-      document.getElementById("captureBtn").addEventListener("click", capturePhoto);
-      document.getElementById("retryBtn").addEventListener("click", resetCamera);
-      document.getElementById("submitBtn").addEventListener("click", uploadImage);
-      document.getElementById("switchCameraBtn").addEventListener("click", switchCamera);
-    };
-
-    // ====================== PROFILE FUNCTIONS ======================
-    function setupProfileHandlers() {
-      // Edit profile button
-      document.getElementById("editProfileBtn").addEventListener("click", () => {
-        document.getElementById("profileView").style.display = "none";
-        document.getElementById("profileEditForm").style.display = "block";
-        
-        // Fill current values
-        document.getElementById("nameInput").value = document.getElementById("userName").innerText;
-        document.getElementById("emailInput").value = document.getElementById("userEmail").innerText;
-      });
-
-      // Cancel edit button
-      document.getElementById("cancelEditBtn").addEventListener("click", () => {
-        document.getElementById("profileView").style.display = "block";
-        document.getElementById("profileEditForm").style.display = "none";
-      });
-
-      // Save profile button
-      document.getElementById("saveProfileBtn").addEventListener("click", async () => {
-        const newName = document.getElementById("nameInput").value;
-        const newEmail = document.getElementById("emailInput").value;
-        
-        if (!newName || !newEmail) {
-          return Swal.fire("Error", "Please fill all fields", "error");
-        }
-
-        try {
-          const res = await fetch("https://greencoin-backend.onrender.com/api/user/profile", {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ name: newName, email: newEmail })
-          });
-
-          if (res.ok) {
-            Swal.fire("Success", "Profile updated!", "success");
-            document.getElementById("userName").innerText = newName;
-            document.getElementById("userEmail").innerText = newEmail;
-            document.getElementById("profileView").style.display = "block";
-            document.getElementById("profileEditForm").style.display = "none";
-          } else {
-            Swal.fire("Error", "Failed to update profile", "error");
-          }
-        } catch (err) {
-          Swal.fire("Error", "Network error", "error");
-        }
-      });
-
-      // Edit photo button
-      document.getElementById("editPhotoBtn").addEventListener("click", () => {
-        document.getElementById("photoUploadForm").style.display = "block";
-      });
-
-      // Cancel photo upload
-      document.getElementById("cancelUploadBtn").addEventListener("click", () => {
-        document.getElementById("photoUploadForm").style.display = "none";
-        document.getElementById("photoUploadInput").value = "";
-      });
-
-      // Upload profile photo
-      document.getElementById("uploadProfileBtn").addEventListener("click", async () => {
-        const fileInput = document.getElementById("photoUploadInput");
-        const file = fileInput.files[0];
-        if (!file) return Swal.fire("No file", "Please select an image", "warning");
-
-        try {
-          const filename = `profile-${Date.now()}-${file.name}`;
-          const { data, error } = await supabase.storage.from("profile").upload(filename, file);
-          if (error) return Swal.fire("Error", "Upload to Supabase failed", "error");
-
-          const { data: publicURLData } = supabase.storage.from("profile").getPublicUrl(filename);
-          const publicUrl = publicURLData.publicUrl;
-
-          const res = await fetch("https://greencoin-backend.onrender.com/api/user/profile-photo", {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ photoUrl: publicUrl })
-          });
-
-          if (res.ok) {
-            Swal.fire("Success", "Profile photo updated!", "success");
-            document.getElementById("profilePhoto").src = publicUrl;
-            document.getElementById("photoUploadForm").style.display = "none";
-            document.getElementById("photoUploadInput").value = "";
-          } else {
-            Swal.fire("Error", "Failed to save photo in backend", "error");
-          }
-        } catch (err) {
-          Swal.fire("Error", "Upload failed", "error");
-        }
-      });
-    }
-
-    // ====================== AUTH ======================
-    function checkAuth() {
-      const token = localStorage.getItem("token");
-      if (!token) window.location.href = "login.html";
-    }
-
-    async function loadUserProfile() {
-      try {
-        const res = await fetch("https://greencoin-backend.onrender.com/api/user/profile", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        const { user } = await res.json();
-
-        document.getElementById("userName").innerText = user.name;
-        document.getElementById("userEmail").innerText = user.email;
-        document.getElementById("coinBalance").innerText = user.coins;
-
-        // Show profile photo
-        const profileImg = document.getElementById("profilePhoto");
-        if (user.profile_photo && user.profile_photo.startsWith("http")) {
-          profileImg.src = user.profile_photo;
-        } else {
-          profileImg.src = "https://i.ibb.co/FzJ9Rjp/default-user.png";
-        }
-      } catch (err) {
-        Swal.fire("Error", "Failed to load profile", "error");
-      }
-    }
-
-    async function loadUploadHistory() {
-      try {
-        const res = await fetch("https://greencoin-backend.onrender.com/api/tree/history", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        const data = await res.json();
-        const history = data.history || [];
-        document.getElementById("historyList").innerHTML = history.map(item => `
-          <div class="mb-2">
-            <img src="${item.imageUrl}" style="max-height:150px;border-radius:8px;"><br>
-            <small>${new Date(item.timestamp).toLocaleString()}</small>
-          </div>
-        `).join("");
-      } catch {
-        Swal.fire("Error", "Failed to load history", "error");
-      }
-    }
-
-    // ====================== MODEL ======================
-    async function loadModel() {
-      model = await tmImage.load(modelURL, metadataURL);
-      console.log("[AI] Model loaded");
-    }
-
-    // ====================== CAMERA ======================
-    function openCamera() {
-      navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: currentFacingMode } }, audio: false
-      }).then(stream => {
-        webcamStream = stream;
-        const video = document.getElementById("video");
-        video.srcObject = stream;
-        video.onloadedmetadata = () => {
-          video.play();
-          video.style.display = "block";
-          document.getElementById("canvas").style.display = "none";
-          document.getElementById("camera-section").style.display = "block";
-          document.getElementById("captureBtn").style.display = "inline-block";
-          document.getElementById("retryBtn").style.display = "none";
-          document.getElementById("submitBtn").style.display = "none";
-          document.getElementById("predictionResults").style.display = "none";
-        };
-      }).catch(() => {
-        Swal.fire("Error", "Camera access denied", "error");
-      });
-    }
-
-    function switchCamera() {
-      if (webcamStream) webcamStream.getTracks().forEach(track => track.stop());
-      currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
-      openCamera();
-    }
-
-    function capturePhoto() {
-      const video = document.getElementById("video");
-      const canvas = document.getElementById("canvas");
-      const ctx = canvas.getContext("2d");
-
-      if (video.videoWidth === 0) {
-        Swal.fire("Error", "Camera not ready", "warning");
-        return;
-      }
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      const timestamp = new Date().toLocaleString();
-      ctx.fillStyle = "rgba(0,0,0,0.7)";
-      ctx.fillRect(10, canvas.height - 40, 300, 30);
-      ctx.fillStyle = "#fff";
-      ctx.font = "18px Poppins";
-      ctx.fillText(timestamp, 15, canvas.height - 20);
-
-      video.style.display = "none";
-      canvas.style.display = "block";
-      document.getElementById("captureBtn").style.display = "none";
-      document.getElementById("retryBtn").style.display = "inline-block";
-      document.getElementById("predictionResults").style.display = "block";
-      document.getElementById("modelPrediction").innerText = "Analyzing...";
-
-      predictImage(canvas);
-    }
-
-    // ====================== AI CHECK ======================
-    async function predictImage(image) {
-      try {
-        const predictions = await model.predict(image);
-        const top = predictions.sort((a, b) => b.probability - a.probability)[0];
-        const isTree = top.className.toLowerCase() === "tree";
-        const highConfidence = top.probability > 0.95;
-
-        const percent = (top.probability * 100).toFixed(2);
-        document.getElementById("modelPrediction").innerText = `${top.className}: ${percent}%`;
-        const bar = document.getElementById("confidenceBar");
-        bar.style.width = `${percent}%`;
-        bar.innerText = `${percent}%`;
-
-        if (isTree && highConfidence) {
-          document.getElementById("submitBtn").style.display = "inline-block";
-          Swal.fire("✅ Tree Detected", "You can now upload", "success");
-        } else {
-          document.getElementById("submitBtn").style.display = "none";
-          Swal.fire("❌ Not a Tree", "Try again with better image", "error");
-        }
-      } catch (err) {
-        Swal.fire("Error", "AI analysis failed", "error");
-      }
-    }
-
-    // ====================== TREE UPLOAD ======================
-    function uploadImage() {
-      const canvas = document.getElementById("canvas");
-      const btn = document.getElementById("submitBtn");
-      if (btn.style.display === "none") return Swal.fire("Wait", "Tree not verified yet", "warning");
-
-      if (lastUploadTime && (Date.now() - lastUploadTime < 5 * 60 * 1000)) {
-        const wait = Math.ceil((5 * 60 * 1000 - (Date.now() - lastUploadTime)) / 60000);
-        return Swal.fire("Cooldown", `Wait ${wait} minute(s)`, "info");
-      }
-
-      canvas.toBlob(async (blob) => {
-        const formData = new FormData();
-        formData.append("photo", blob, "tree.jpg");
-
-        try {
-          const res = await fetch("https://greencoin-backend.onrender.com/api/tree/upload", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            body: formData,
-          });
-
-          if (!res.ok) return Swal.fire("Error", "Upload failed", "error");
-
-          const data = await res.json();
-          lastUploadTime = Date.now();
-          startCooldown();
-          Swal.fire("Success", `Tree uploaded! +${data.coinsAwarded || 0} coins`, "success");
-          stopCamera();
-          document.getElementById("camera-section").style.display = "none";
-          loadUserProfile();
-          loadUploadHistory();
-        } catch (err) {
-          Swal.fire("Error", "Upload error", "error");
-        }
-      });
-    }
-
-    // ====================== COOLDOWN ======================
-    function startCooldown() {
-      const cooldownEl = document.getElementById("cooldownInfo");
-      const timerEl = document.getElementById("cooldownTimer");
-      let timeLeft = 300;
-
-      cooldownEl.style.display = "block";
-      const interval = setInterval(() => {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerEl.innerText = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-        timeLeft--;
-        if (timeLeft < 0) {
-          clearInterval(interval);
-          cooldownEl.style.display = "none";
-        }
-      }, 1000);
-    }
-
-    // ====================== CAMERA CLEANUP ======================
-    function resetCamera() {
-      document.getElementById("canvas").style.display = "none";
-      document.getElementById("video").style.display = "block";
-      document.getElementById("submitBtn").style.display = "none";
-      document.getElementById("captureBtn").style.display = "inline-block";
-      document.getElementById("retryBtn").style.display = "none";
-      document.getElementById("predictionResults").style.display = "none";
-    }
-
-    function stopCamera() {
-      if (webcamStream) webcamStream.getTracks().forEach(track => track.stop());
-    }
-  </script>
+  <script src="dashboard.js" defer></script>
 </body>
 </html>
