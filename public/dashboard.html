@@ -78,8 +78,9 @@
       <i class="bi bi-box-arrow-right"></i> Logout
     </button>
 
-    <!-- ✅ User Info -->
+    <!-- ✅ User Info with Profile Photo -->
     <div class="card text-center">
+      <img id="profilePhoto" src="https://i.ibb.co/FzJ9Rjp/default-user.png" alt="Profile" class="rounded-circle mb-3" width="100" height="100" style="object-fit: cover;" />
       <h2>Welcome, <span id="userName">User</span></h2>
       <p>Email: <span id="userEmail">user@example.com</span></p>
       <h4><i class="bi bi-coin"></i> Coins: <span id="coinBalance">0</span></h4>
@@ -133,7 +134,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
   <script>
-    // Add this to your dashboard.js or here for logout functionality
+    // ✅ Logout
     document.getElementById('logoutBtn').addEventListener('click', function() {
       Swal.fire({
         title: 'Logout?',
@@ -145,9 +146,8 @@
         confirmButtonText: 'Yes, logout!'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Perform logout actions here (clear session, etc.)
-          // Then redirect to login page
-          window.location.href = 'index.html'; // Change to your login page
+          localStorage.removeItem('token');
+          window.location.href = 'index.html';
         }
       });
     });
