@@ -141,8 +141,9 @@ async function predictImage(image) {
     const predictions = await model.predict(image);
     const top = predictions.sort((a, b) => b.probability - a.probability)[0];
     const isTree = top.className.toLowerCase() === "tree";
-    const highConfidence = top.probability > 0.95;
+    const highConfidence = top.probability >= 0.99; // ✅ Only allow 99% or above
     const percent = (top.probability * 100).toFixed(2);
+
     document.getElementById("modelPrediction").innerText = `${top.className}: ${percent}%`;
     const bar = document.getElementById("confidenceBar");
     bar.style.width = `${percent}%`;
@@ -153,12 +154,13 @@ async function predictImage(image) {
       Swal.fire("✅ Tree Detected", "You can now upload", "success");
     } else {
       document.getElementById("submitBtn").style.display = "none";
-      Swal.fire("❌ Not a Tree", "Try again", "error");
+      Swal.fire("❌ Not a Tree", "Confidence must be 99%+", "error");
     }
   } catch (err) {
     Swal.fire("Error", "AI failed", "error");
   }
 }
+
 
 function uploadImage() {
   const canvas = document.getElementById("canvas");
