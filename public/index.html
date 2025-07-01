@@ -76,6 +76,42 @@
         .nav-link:hover:after {
             width: 100%;
         }
+
+        /* Developer Credit Styles */
+        .developer-credit {
+            display: flex;
+            flex-direction: column;
+            padding-left: 1rem;
+            margin-left: 1rem;
+            border-left: 1px solid rgba(0,0,0,0.1);
+            line-height: 1.3;
+        }
+
+        .developer-credit .dev-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            color: var(--dark);
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+
+        .developer-credit .dev-email {
+            color: var(--primary);
+            font-size: 0.75rem;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .developer-credit:hover .dev-email {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 991.98px) {
+            .developer-credit {
+                display: none;
+            }
+        }
         
         /* Hero section */
         .hero-section {
@@ -864,6 +900,13 @@
                     </li>
                     <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
                         <a class="btn btn-outline-primary register-link" href="register.html">Register</a>
+                    </li>
+                    <li class="nav-item ms-lg-3 d-none d-lg-flex align-items-center">
+                        <div class="developer-credit">
+                            <span class="text-muted small">Developed by</span>
+                            <span class="dev-name">Kalashsingh Solanke</span>
+                            <span class="dev-email small">kalash9100@gmail.com</span>
+                        </div>
                     </li>
                 </ul>
             </div>
