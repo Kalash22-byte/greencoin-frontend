@@ -1,6 +1,6 @@
-// ✅ Final dashboard.js
-const modelURL = "https://teachablemachine.withgoogle.com/models/jVXRskySZ/model.json";
-const metadataURL = "https://teachablemachine.withgoogle.com/models/jVXRskySZ/metadata.json";
+const modelURL = "https://teachablemachine.withgoogle.com/models/9tAcsvkyu/model.json";
+const metadataURL = "https://teachablemachine.withgoogle.com/models/9tAcsvkyu/metadata.json";
+
 let model, webcamStream;
 let currentFacingMode = "environment";
 let lastUploadTime = null;
